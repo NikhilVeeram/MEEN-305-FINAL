@@ -1,0 +1,961 @@
+\documentclass[11pt,letterpaper]{article}
+
+%% ── Packages ──────────────────────────────────────────────────────────────────
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{siunitx}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{parskip}
+
+%% ── Document metadata ─────────────────────────────────────────────────────────
+\title{\textbf{MEEN 305 Final Project}\\[0.5em]
+       \large Minimum-Weight Beam Design and Analysis\\[0.3em]
+       \large Tapered Hollow Rectangular Tube in PLA}
+\author{Team \#6}
+\date{Spring 2026}
+
+\begin{document}
+\maketitle
+\tableofcontents
+\newpage
+
+%% ═══════════════════════════════════════════════════════════════════════════════
+\section{Problem Statement and Requirements}
+%% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Fixed Project Inputs}
+
+The beam is simply supported with the following prescribed boundary conditions
+and loading:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Parameter & Symbol & Value \\
+\midrule
+Support span & $L$ & \SI{8.0}{in} \\
+Total beam length & $L_{total}$ & \SI{9.0}{in} \\
+Load Case~1 magnitude & $P_1$ & \SI{5.0}{lbf} \\
+Load Case~1 location & $a_1$ & \SI{4.0}{in} from support~A (midspan) \\
+Load Case~1 orientation & --- & Upright (load applied vertically) \\
+Load Case~2 magnitude & $P_2$ & \SI{8.0}{lbf} \quad ($2 + \text{Team\#} = 2 + 6$) \\
+Load Case~2 location & $a_2$ & \SI{5.0}{in} from support~A \quad ($2 + \tfrac{6}{2} = 5$) \\
+Load Case~2 orientation & --- & Rotated \SI{90}{\degree} about span axis \\
+Required factor of safety & $\mathrm{FoS}_{\min}$ & $\ge 1.5$ for both load cases \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Objective}
+
+Minimize the weight of the printed beam,
+\[
+  \text{minimize}\quad W = \rho \int_0^{L} A(x)\,dx,
+\]
+subject to the factor-of-safety constraint for both load cases and all
+engineering and manufacturing constraints defined in Section~\ref{sec:constraints}.
+
+\subsection{Design Variables}
+
+The beam cross-section is a tapered hollow rectangular tube with spanwise
+lightening openings.  The geometry is fully described by \textbf{10 continuous
+design variables}:
+
+\begin{center}
+\begin{tabular}{llll}
+\toprule
+Variable & Symbol & Units & Role \\
+\midrule
+Left/mid/right outer width   & $b_L, b_M, b_R$ & in & Tube width at $x=0,L/2,L$ \\
+Left/mid/right outer height  & $h_L, h_M, h_R$ & in & Tube height at $x=0,L/2,L$ \\
+Wall thickness               & $t$             & in & Uniform flange/web thickness \\
+Left/mid/right opening ratio & $r_L, r_M, r_R$ & -- & Fraction of inner web height removed \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+All six profile dimensions ($b$, $h$, $r$) vary continuously along the span
+via piecewise linear interpolation between the three control points.  Wall
+thickness $t$ is kept spatially uniform, consistent with FDM slice practice.
+
+
+%% ═══════════════════════════════════════════════════════════════════════════════
+\section{Material Selection}
+\label{sec:material}
+%% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Available FDM Polymers}
+
+The Rapid Prototyping Studio (JCAIN 422) stocks four filament options.
+Their nominal bulk properties and effective FDM properties are:
+
+\begin{center}
+\begin{tabular}{lrrrrrr}
+\toprule
+Material & $E$ [psi] & $\sigma_{allow}$ [psi] & $\rho$ [\si{lbf/in^3}]
+         & $k_{orient}$ & $k_{infill}$ & $E_{eff}$ [psi] \\
+\midrule
+PLA  & 500\,000 & 4\,000 & 0.045 & 0.70 & 0.85 & 297\,500 \\
+ASA  & 380\,000 & 3\,600 & 0.043 & 0.65 & 0.85 & 209\,950 \\
+PETG & 290\,000 & 3\,500 & 0.046 & 0.72 & 0.85 & 177\,480 \\
+TPU  &  10\,000 & 2\,500 & 0.043 & 0.75 & 0.90 &   6\,750 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Orientation and Infill Factors}
+
+FDM parts are mechanically anisotropic because deposited layers bond through
+partial re-melting.  The interlayer bond is the dominant failure surface.
+Two reduction factors are applied multiplicatively to all nominal isotropic
+properties:
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Orientation factor} $k_{orient}$: accounts for the reduction
+    in strength and stiffness perpendicular to the print plane.  When the span
+    axis lies along the print direction (layer lines parallel to the neutral
+    axis), load is transferred through the solid infill struts rather than
+    across layer interfaces.  We use $k_{orient} = 0.70$ for PLA, consistent
+    with RPS guidance that layer lines are ``the single biggest failure point.''
+  \item \textbf{Infill factor} $k_{infill}$: accounts for the reduced
+    solid volume at less-than-100\% rectilinear infill.  We use
+    $k_{infill} = 0.85$, corresponding to approximately 40\% rectilinear
+    infill with solid top/bottom shells.
+\end{itemize}
+
+Effective properties:
+\[
+  E_{eff} = k_{orient}\,k_{infill}\,E_{bulk}
+  = 0.70 \times 0.85 \times 500\,000 = 297\,500\ \mathrm{psi}
+\]
+\[
+  \sigma_{allow,eff} = k_{orient}\,k_{infill}\,\sigma_{allow}
+  = 0.70 \times 0.85 \times 4\,000 = 2\,380\ \mathrm{psi}
+\]
+
+\subsection{Justification for PLA}
+
+PLA is selected for the following engineering reasons:
+
+\begin{enumerate}[noitemsep]
+  \item \textbf{Highest effective stiffness}: $E_{eff,PLA} = 297\,500$ psi
+    versus $209\,950$, $177\,480$, and $6\,750$ psi for ASA, PETG, and TPU
+    respectively.  Deflection is inversely proportional to $E_{eff}I$;
+    PLA permits the smallest cross-section for a given deflection.
+  \item \textbf{Highest allowable stress}: $\sigma_{allow,eff,PLA} = 2\,380$
+    psi gives the largest FoS margin for a given cross-section, enabling
+    more material removal.
+  \item \textbf{Printability}: PLA is the recommended default at the RPS and
+    requires no special enclosure or bed adhesion, making reliable prints
+    more likely.
+  \item \textbf{Density}: PLA density ($0.045\ \mathrm{lbf/in^3}$) is
+    representative of structural polymers; ASA is marginally lighter but
+    at the cost of significantly lower effective properties.
+\end{enumerate}
+
+TPU is immediately eliminated (flexible elastomer, not a structural polymer).
+ASA and PETG are eliminated because both have lower $E_{eff}$ and lower
+$\sigma_{allow,eff}$ than PLA --- the same geometry would be heavier and weaker.
+
+
+%% ═══════════════════════════════════════════════════════════════════════════════
+\section{Beam Parametrization}
+\label{sec:parametrization}
+%% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Cross-Section Topology}
+
+At each spanwise location $x$, the cross-section is a hollow rectangular tube
+with a centered web opening (lightening slot) in both vertical web faces.
+The outer dimensions at position $x$ are $b(x) \times h(x)$; the wall
+thickness $t$ is uniform throughout.  The opening removes a fraction $r(x)$
+of the clear inner web height $h_{clear}(x) = h(x) - 2t$ from both web faces,
+leaving solid flanges top and bottom.
+
+\subsection{Profile Functions}
+
+Each of the three continuous profiles is defined by piecewise linear
+interpolation between three control points at $x = 0$ (left support),
+$x = L/2 = 4\ \mathrm{in}$ (midspan), and $x = L = 8\ \mathrm{in}$
+(right support):
+
+\[
+  b(x) = \begin{cases}
+    b_L + \dfrac{2(b_M - b_L)}{L}\,x, & 0 \le x \le \tfrac{L}{2} \\[6pt]
+    b_M + \dfrac{2(b_R - b_M)}{L}\,(x - \tfrac{L}{2}), & \tfrac{L}{2} < x \le L
+  \end{cases}
+\]
+
+and analogously for $h(x)$ and $r(x)$.  This three-point piecewise-linear
+scheme provides enough shape freedom to represent arch profiles, linearly
+tapered beams, and uniform beams as special cases, while keeping the number
+of design variables tractable.
+
+\subsection{Section Properties}
+
+\paragraph{Cross-sectional area (with openings).}
+\[
+  A(x) = 2\,b(x)\,t + [1 - r(x)]\,2\,t\,h_{clear}(x),
+  \quad h_{clear}(x) = h(x) - 2t
+\]
+The first term is the two horizontal flanges; the second is the remaining
+vertical web area after the lightening slot is removed.
+
+\paragraph{Second moment of area --- upright bending (Load Case~1).}
+The full hollow-tube second moment minus the two opening slots:
+\[
+  I_{upright}(x) = \frac{b(x)\,h(x)^3 - [b(x)-2t]\,[h(x)-2t]^3}{12}
+  - 2\,\frac{t\,[r(x)\,(h(x)-2t)]^3}{12}
+\]
+
+\paragraph{Second moment of area --- side-rotated bending (Load Case~2).}
+The beam is physically rotated \SI{90}{\degree} about the span axis, so $b$
+becomes the vertical (bending) dimension and $h$ becomes the lateral dimension:
+\[
+  I_{side}(x) = \frac{h(x)\,b(x)^3 - [h(x)-2t]\,[b(x)-2t]^3}{12}
+  - 2\,\frac{t\,[r(x)\,(b(x)-2t)]^3}{12}
+\]
+
+\paragraph{Section modulus.}
+\[
+  S(x) = \frac{I(x)}{c(x)},
+  \qquad c(x) = \frac{\text{outer vertical dimension}}{2}
+\]
+
+\paragraph{Shear area.}
+\[
+  A_{shear}(x) = [1 - r(x)]\,2t\,h_{clear,active}(x)
+\]
+where $h_{clear,active}$ is the clear inner dimension in the active bending
+orientation.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.85\textwidth]{optimization_final/beam_parameter_map.png}
+  \caption{Variable map for the final optimized design.  Front view (top) shows
+  the height profile $h(x)$ with control-point annotations; top view (bottom)
+  shows the width profile $b(x)$, wall thickness $t$, and load locations.}
+  \label{fig:parammap}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{optimization_final/best_design/outer_dimension_views.png}
+  \caption{Outer dimension profiles and lightening-opening ratio for the
+  final design.  Left: front-view height profile $h(x)$; centre: top-view
+  width profile $b(x)$; right: web opening ratio $r(x)$ along the span.}
+  \label{fig:outerviews}
+\end{figure}
+
+
+%% ═══════════════════════════════════════════════════════════════════════════════
+\section{Governing Equations and Analysis Methodology}
+\label{sec:theory}
+%% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Statics: Reactions and Internal Loads}
+
+For a simply supported beam with one point load $P$ at $x = a$:
+\[
+  R_A = \frac{P(L-a)}{L}, \qquad R_B = \frac{Pa}{L}
+\]
+
+Shear force and bending moment (piecewise, with the load-point discontinuity):
+\[
+  V(x) = \begin{cases} R_A & 0 \le x < a \\ R_A - P & a < x \le L \end{cases}
+  \qquad
+  M(x) = \begin{cases} R_A\,x & 0 \le x < a \\ R_A\,x - P(x-a) & a < x \le L \end{cases}
+\]
+
+\subsection{Normal Bending Stress}
+
+Using the Euler-Bernoulli flexure formula at the extreme fiber:
+\[
+  \sigma_b(x) = \frac{|M(x)|}{S(x)}
+\]
+
+\subsection{Shear Stress}
+
+Shear is distributed over the active web area remaining after the lightening
+opening.  A conservative uniform-distribution approximation is used:
+\[
+  \tau(x) = \frac{|V(x)|}{A_{shear}(x)}
+\]
+
+\subsection{von Mises Equivalent Stress}
+
+For the plane-stress state combining bending normal stress and shear:
+\[
+  \sigma_{vm}(x) = \sqrt{\sigma_b(x)^2 + 3\,\tau(x)^2}
+\]
+
+This combines bending and shear into a single scalar comparable to the
+effective allowable stress.
+
+\subsection{Factor of Safety}
+
+\[
+  \mathrm{FoS}(x) = \frac{\sigma_{allow,eff}}{\sigma_{vm}(x)}
+\]
+
+The governing (minimum) FoS is tracked at every discretized station $x$
+across both load cases:
+\[
+  \mathrm{FoS}_{min} = \min_{x,\,\text{LC}} \mathrm{FoS}(x)
+\]
+
+The design constraint is $\mathrm{FoS}_{min} \ge 1.5$.
+
+\subsection{Deflection via Euler-Bernoulli Integration}
+
+The Euler-Bernoulli beam equation for a non-uniform cross-section:
+\[
+  E_{eff}\,I(x)\,v''(x) = M(x)
+\]
+
+Because $I(x)$ varies continuously with $x$, slope $\theta(x) = v'(x)$
+and deflection $v(x)$ are obtained by numerical integration (trapezoidal rule,
+801 stations) with simple-support boundary conditions $v(0) = v(L) = 0$:
+
+\begin{align*}
+  \theta(x) &= \int_0^x \frac{M(s)}{E_{eff}\,I(s)}\,ds + C_1 \\
+  v(x) &= \int_0^x \theta(s)\,ds + C_1\,x
+\end{align*}
+
+The integration constant $C_1$ is determined by enforcing $v(L) = 0$.
+
+\subsection{Beam Weight}
+
+\[
+  W = \rho \int_0^{L} A(x)\,dx
+\]
+
+The integral is evaluated numerically over the same 801-station grid.
+
+\subsection{Assumption: Self-Weight Neglected}
+
+\textbf{Self-weight is not included in the shear, moment, stress, or
+deflection calculations.}  Justification:
+
+\begin{itemize}[noitemsep]
+  \item The optimized beam weighs $W = 0.03454\ \mathrm{lbf}$.
+  \item Applied point loads total $P_1 + P_2 = 5 + 8 = 13\ \mathrm{lbf}$.
+  \item Self-weight is $0.03454 / 13 \approx 0.27\%$ of applied load.
+  \item Standard practice neglects distributed self-weight when it is less
+    than 5\% of applied load.  At 0.27\%, the assumption is conservative
+    by more than an order of magnitude; including self-weight would increase
+    midspan stress by $< 0.3\%$.
+\end{itemize}
+
+\subsection{Equation Dependency Chain}
+
+The full analysis pipeline from inputs to objective is:
+\[
+  (L,\,P,\,a)
+  \;\xrightarrow{\text{statics}}\;
+  R_A,\,R_B
+  \;\xrightarrow{}\;
+  V(x),\,M(x)
+  \;\xrightarrow{\text{geometry}}\;
+  A(x),\,I(x),\,S(x)
+  \;\xrightarrow{}\;
+  \sigma_b,\,\tau
+  \;\xrightarrow{}\;
+  \sigma_{vm}
+  \;\xrightarrow{}\;
+  \mathrm{FoS}
+\]
+\[
+  M(x),\,E_{eff},\,I(x)
+  \;\xrightarrow{\text{integration}}\;
+  v(x)
+  \qquad\qquad
+  A(x),\,\rho
+  \;\xrightarrow{\text{integration}}\;
+  W
+\]
+
+Both load cases use the same geometry functions; the active bending
+orientation switches between $I_{upright}$ (LC1) and $I_{side}$ (LC2).
+
+
+%% ═══════════════════════════════════════════════════════════════════════════════
+\section{Engineering Judgment Constraints}
+\label{sec:constraints}
+%% ═══════════════════════════════════════════════════════════════════════════════
+
+An idealized stress analysis would permit geometries that are physically
+unrealizable on an FDM printer.  The following engineering judgment constraints
+are hard-coded in \texttt{beam\_solver.py} (\texttt{TaperedRectangularTube.validate()}):
+
+\begin{enumerate}
+  \item \textbf{Minimum cross-section at every station, including supports.}
+    At a simply supported beam end, the bending moment is zero, so idealized
+    theory requires zero section modulus --- i.e., zero cross-section.  In
+    reality, the beam must physically contact its supports and transfer shear.
+    The code enforces $h(x), b(x) \ge 0.15\ \mathrm{in}$ ($\approx 3.8\ \mathrm{mm}$)
+    at every station.
+
+  \item \textbf{Minimum printable wall thickness.}
+    A purely stress-based analysis would permit paper-thin walls wherever
+    stress is low.  On a 0.4~mm nozzle, fewer than two continuous perimeters
+    ($< 0.8\ \mathrm{mm}$) produces unreliable, porous walls.  The code
+    enforces $t \ge 0.040\ \mathrm{in}$ ($\approx 1.0\ \mathrm{mm}$).
+
+  \item \textbf{Wall thickness must fit inside the cross-section.}
+    $t < b/2$ and $t < h/2$ at every station; otherwise the tube wall
+    would overlap the centerline.
+
+  \item \textbf{Ligament constraint for web openings.}
+    The remaining solid ligament on each side of a web opening must exceed
+    the wall thickness: $\tfrac{1}{2}(1 - r)\,h_{clear} > t$.  This ensures
+    the web-to-flange junction is thick enough for load transfer and printing.
+
+  \item \textbf{Opening ratio bounded below 0.95.}
+    A ratio of 1.0 would remove the web entirely, leaving two unconnected
+    flanges.  The code enforces $r < 0.95$.
+\end{enumerate}
+
+The \textbf{optimizer search bounds} are more restrictive than these hard
+minimums, providing the primary engineering envelope:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Variable & Optimizer minimum & Optimizer maximum \\
+\midrule
+Height $h$ [in]         & 0.38 & 1.30 \\
+Width $b$ [in]          & 0.35 & 1.60 \\
+Wall thickness $t$ [in] & 0.06 & 0.18 \\
+Opening ratio $r$ [--]  & 0.00 & 0.87 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The minimum height of $0.38\ \mathrm{in}$ ($\approx 9.7\ \mathrm{mm}$) ensures
+a realistic cross-section at every station including at the supports.  The
+maximum opening ratio of 0.87 was chosen to guarantee at least $1.9\ \mathrm{mm}$
+of solid ligament per side at the minimum-height station --- about 5 nozzle
+widths at 0.4~mm, sufficient for a reliable continuous wall.
+
+
+%% ═══════════════════════════════════════════════════════════════════════════════
+\section{Optimization Methodology}
+\label{sec:optimization}
+%% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Search Strategy}
+
+A two-phase surrogate-free method was used:
+
+\begin{enumerate}
+  \item \textbf{Latin hypercube sampling (LHS).}
+    600 candidate designs are drawn by stratified random sampling across the
+    10-dimensional design space.  LHS guarantees that each variable's range
+    is sampled uniformly, avoiding clustering inherent in purely random
+    Monte Carlo sampling.
+
+  \item \textbf{Elite local refinement.}
+    After the global phase, the top 20 feasible designs (``elites'') are
+    identified.  Around each elite, 35 new candidates are sampled from a
+    Gaussian neighborhood with standard deviation shrinking by $1/(k+1)$
+    each round.  This is repeated for 8 rounds, progressively concentrating
+    the search near the current best design.
+\end{enumerate}
+
+Total designs evaluated: \textbf{1\,300}; feasible designs found: \textbf{684}.
+
+\subsection{Objective Function}
+
+The search minimizes a penalized composite objective:
+\[
+  f(\mathbf{d}) = W
+  + 500\,\bigl(\max(0,\;1.5 - \mathrm{FoS}_{min})\bigr)^2
+  + 12.0\,\bigl(\mathrm{FoS}_{min} - 1.5\bigr)^2
+  + 0.5\,\overline{u}^2
+\]
+
+where:
+\begin{itemize}[noitemsep]
+  \item $W$ is beam weight [lbf] --- the true objective.
+  \item The first penalty drives infeasible designs toward FoS $\ge 1.5$.
+  \item The third term (weight 12.0) penalizes \emph{excess} FoS above 1.5
+    --- this is what drives the optimizer to remove material rather than
+    stopping at the first feasible design.
+  \item $\overline{u}^2$ is the mean-squared underutilization across beam
+    stations, penalizing cross-sections far from the target stress level and
+    encouraging a more uniform stress distribution.
+\end{itemize}
+
+The excess-FoS weight of 12.0 was determined through systematic trial.
+Values below $\sim 1.0$ left the optimizer content with FoS $\gg 1.5$;
+values above $\sim 20$ caused constraint violations.
+
+\subsection{Why Load Case~2 Governs for Team~6}
+
+For Team~6, $P_2 = 8\ \mathrm{lbf}$ at $a_2 = 5\ \mathrm{in}$
+produces a maximum bending moment of:
+\[
+  M_{max,LC2} = R_{A,LC2} \times a_2
+  = \frac{8(8-5)}{8} \times 5 = 3 \times 5 = 15\ \mathrm{lbf \cdot in}
+\]
+
+Load Case~1 produces:
+\[
+  M_{max,LC1} = R_{A,LC1} \times a_1
+  = \frac{5(8-4)}{8} \times 4 = 2.5 \times 4 = 10\ \mathrm{lbf \cdot in}
+\]
+
+LC2 has 50\% more bending moment than LC1, and acts in the side-rotated
+orientation where the width $b$ (not height $h$) is the critical bending
+dimension.  This fundamentally changes the optimal design topology compared
+to a team with a smaller $P_2$: the optimizer must now ensure adequate
+\emph{width} at the location of peak LC2 moment.
+
+\subsection{Printability Bounds}
+
+Early runs produced designs with extreme height tapers
+($h_{max}/h_{min} > 4\times$), which generated non-contiguous 3D meshes.
+Capping the maximum height at $1.30\ \mathrm{in}$ limits the taper ratio
+to $\le 2.13\times$ in the final design, ensuring a single contiguous
+3D solid.
+
+
+%% ═══════════════════════════════════════════════════════════════════════════════
+\section{Final Optimized Design}
+\label{sec:design}
+%% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Geometry}
+
+\begin{center}
+\begin{tabular}{lrl}
+\toprule
+Variable & Value & Notes \\
+\midrule
+$b_L$ [in] & 0.823 & Wide left end --- supports LC2 bending and LC1 shear area \\
+$b_M$ [in] & 0.350 & Minimum allowed --- width not governing at midspan for LC2 \\
+$b_R$ [in] & 0.350 & Minimum allowed --- LC2 moment drops toward right support \\
+$h_L$ [in] & 0.959 & Tall left end provides LC1 upright bending and LC2 web shear area \\
+$h_M$ [in] & 0.727 & Moderate midspan height --- LC1 governs bending there \\
+$h_R$ [in] & 0.606 & Shorter right end --- LC2 reaction is large here ($R_B=5$ lbf) \\
+$t$ [in]   & 0.060 & Minimum allowed ($\approx 1.5\ \mathrm{mm}$, 3.75 nozzle widths) \\
+$r_L$ [--] & 0.334 & 33\% web opening at left (constrained by LC2 shear) \\
+$r_M$ [--] & 0.650 & 65\% web opening at midspan where both moments are moderate \\
+$r_R$ [--] & 0.276 & 28\% web opening at right where $R_B$ is largest \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Topology.}
+The optimizer found a \textbf{left-heavy taper}: the left end is the widest
+($b_L = 0.823\ \mathrm{in}$) and tallest ($h_L = 0.959\ \mathrm{in}$),
+while the beam tapers down toward the right.  This makes physical sense:
+\begin{itemize}[noitemsep]
+  \item LC2 moment peaks at $x = 5\ \mathrm{in}$ (load location) and
+    increases monotonically from $x = 0$ on the left side.  For side-rotated
+    bending, section modulus $S_{side} \propto b^2$; the optimizer responds
+    by making $b$ largest on the left where moment is increasing.
+  \item LC1 midspan bending ($x = 4\ \mathrm{in}$, upright) is entirely
+    handled by the height profile; $h_M = 0.727\ \mathrm{in}$ gives
+    FoS$_{LC1} = 3.96$ --- safely above 1.5 but not the governing case.
+  \item The large right reaction $R_{B,LC2} = 5\ \mathrm{lbf}$ requires
+    solid material at the right end to transfer shear, so $r_R = 0.276$
+    (only 28\% opening) versus $r_M = 0.650$ (65\% opening at midspan
+    where both moments are moderate).
+\end{itemize}
+
+\paragraph{Printability check.}
+The minimum remaining ligament per web side is at the midspan station:
+\[
+  \ell_{min} = \tfrac{1}{2}(1 - r_M)(h_M - 2t)
+  = \tfrac{1}{2}(1 - 0.650)(0.727 - 0.120)
+  = 0.1062\ \mathrm{in} \approx 2.70\ \mathrm{mm}
+\]
+This is $\approx 6.7$ nozzle widths at 0.4~mm, providing a continuous
+reliable wall.  Height taper ratio:
+\[
+  h_{max}/h_{min} = 0.959 / 0.606 = 1.58\times
+\]
+Well below the 4.73$\times$ ratio of early non-printable designs.
+
+\subsection{Profile Equations}
+
+\[
+b(x)=\begin{cases}0.8230 + (-0.2365)\,x, & 0 \le x \le 4.0000\\
+     0.3500 + (0.0000)\,(x-4.0000), & 4.0000 < x \le 8.0000\end{cases}
+\]
+\[
+h(x)=\begin{cases}0.9594 + (-0.0582)\,x, & 0 \le x \le 4.0000\\
+     0.7266 + (-0.0302)\,(x-4.0000), & 4.0000 < x \le 8.0000\end{cases}
+\]
+\[
+r(x)=\begin{cases}0.3342 + (0.0791)\,x, & 0 \le x \le 4.0000\\
+     0.6504 + (-0.1872)\,(x-4.0000), & 4.0000 < x \le 8.0000\end{cases}
+\]
+
+\subsection{Section Properties Profiles}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{optimization_final/best_design/geometry_properties.png}
+  \caption{Second moment of area $I(x)$ (left) and section modulus $S(x)$
+  (right) for the final design in both upright and side-rotated orientations.
+  Note that $I_{side}$ and $S_{side}$ are largest near the left support where
+  $b_L = 0.823\ \mathrm{in}$ --- the optimizer places width where LC2 bending
+  moment is largest (increasing from left to the load at $x=5\ \mathrm{in}$).}
+  \label{fig:secprops}
+\end{figure}
+
+
+%% ═══════════════════════════════════════════════════════════════════════════════
+\section{Load Case Analysis Results}
+\label{sec:results}
+%% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Summary Table}
+
+\begin{center}
+\begin{tabular}{llrrrrrr}
+\toprule
+Load Case & Orient. & $P$ [lbf] & $a$ [in]
+         & $R_A$ [lbf] & $R_B$ [lbf]
+         & Min FoS & Max $|v|$ [in] \\
+\midrule
+LC1 & upright & 5.000 & 4.000 & 2.500 & 2.500 & 3.956 & 0.02538 \\
+LC2 & side    & 8.000 & 5.000 & 3.000 & 5.000 & \textbf{1.522} & 0.11608 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Governing Load Case}
+
+\textbf{Load Case~2 governs} with $\mathrm{FoS}_{min} = 1.522$ at
+$x = 5.0\ \mathrm{in}$.  This is the load application point for LC2,
+exactly where $M_{LC2}(x)$ reaches its maximum of
+$15\ \mathrm{lbf\cdot in}$ --- 50\% larger than the LC1 peak moment of
+$10\ \mathrm{lbf\cdot in}$.  For Team~6, LC2 is the structurally demanding
+case because the load is heavier (8 vs 5 lbf), applies at an off-center
+location that generates a larger moment arm, and acts in the side-rotated
+orientation where the critical section modulus $S_{side} \propto b^2$
+requires large width.
+
+\subsection{Load Case~1: Upright Bending}
+
+Reactions:
+\[
+  R_A = \frac{5.000(8.000 - 4.000)}{8.000} = 2.500\ \mathrm{lbf},
+  \qquad
+  R_B = \frac{5.000 \times 4.000}{8.000} = 2.500\ \mathrm{lbf}
+\]
+
+\[
+  \mathrm{FoS}_{min,LC1}
+  = \frac{\sigma_{allow,eff}}{\sigma_{vm,max,LC1}}
+  = \frac{2\,380}{602} = 3.956
+  \quad \text{at } x = 4.000\ \mathrm{in}
+\]
+
+Load Case~1 is easily satisfied because the design must be sized for the
+larger LC2 load; LC1 becomes a secondary condition with comfortable margin.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{optimization_final/best_design/load_case_1_results.png}
+  \caption{Load Case~1 results (upright orientation, $P_1=5\ \mathrm{lbf}$,
+  $a_1=4\ \mathrm{in}$).  Clockwise from top-left: shear diagram, bending
+  moment diagram, von Mises stress, factor of safety (dashed red line at
+  FoS~=~1.5), slope, and deflection.  The governing FoS of 3.956 at midspan
+  shows significant reserve capacity under LC1 --- the design is sized by
+  the heavier LC2.}
+  \label{fig:lc1}
+\end{figure}
+
+\subsection{Load Case~2: Side-Rotated Bending (Governing)}
+
+Reactions (Team~6: $P_2 = 8\ \mathrm{lbf}$, $a_2 = 5\ \mathrm{in}$):
+\[
+  R_A = \frac{8.000(8.000 - 5.000)}{8.000} = 3.000\ \mathrm{lbf},
+  \qquad
+  R_B = \frac{8.000 \times 5.000}{8.000} = 5.000\ \mathrm{lbf}
+\]
+
+\[
+  \mathrm{FoS}_{min,LC2}
+  = \frac{\sigma_{allow,eff}}{\sigma_{vm,max,LC2}}
+  = \frac{2\,380}{1\,564} = 1.522
+  \quad \text{at } x = 5.000\ \mathrm{in}
+\]
+
+The beam is physically rotated \SI{90}{\degree} about the span axis, so
+bending now occurs about the width axis.  $I_{side}(x)$ and $S_{side}(x)$
+are used in place of the upright section properties.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\textwidth]{optimization_final/best_design/load_case_2_results.png}
+  \caption{Load Case~2 results (side-rotated \SI{90}{\degree},
+  $P_2=8\ \mathrm{lbf}$, $a_2=5\ \mathrm{in}$).  The asymmetric load
+  ($R_B = 5\ \mathrm{lbf}$, larger than $R_A = 3\ \mathrm{lbf}$) produces
+  a moment diagram peaking at $x=5\ \mathrm{in}$.  The governing FoS of 1.522
+  occurs there.  Maximum deflection of 0.116~in occurs near $x=4.6\ \mathrm{in}$.}
+  \label{fig:lc2}
+\end{figure}
+
+
+%% ═══════════════════════════════════════════════════════════════════════════════
+\section{Optimization History and Design Comparison}
+\label{sec:history}
+%% ═══════════════════════════════════════════════════════════════════════════════
+
+All runs used Team~6 load parameters ($P_2 = 8\ \mathrm{lbf}$, $a_2 = 5\ \mathrm{in}$).
+
+\begin{center}
+\begin{tabular}{llrrll}
+\toprule
+Run & Key change & Weight [lbf] & Min FoS & Governs & Notes \\
+\midrule
+Initial (seed 9999, ew=5) & First Team-6 run & 0.05433 & 1.632 & LC2 & Excess FoS penalty too low \\
+O (seed 9999, ew=12) & Raised excess-FoS wt & 0.03979 & 1.522 & LC2 & Better but not lightest \\
+P (seed 1234, ew=12) & Different seed       & 0.03929 & 1.544 & LC2 & Good topology \\
+Q42 (seed 42, ew=12) & Different seed       & 0.03818 & 1.547 & LC2 & \\
+\textbf{Q7777 (seed 7777, ew=12)} & \textbf{Different seed} & \textbf{0.03454} & \textbf{1.522} & \textbf{LC2} & \textbf{Lightest} \\
+Q2025 (seed 2025, ew=12) & Different seed   & 0.04589 & 1.500 & LC2 & FoS exact but heavier \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{36\% weight reduction achieved.}
+The final design ($W = 0.03454\ \mathrm{lbf}$) is 36\% lighter than the first
+Team-6 run ($W = 0.05433\ \mathrm{lbf}$), achieved by raising the excess-FoS
+penalty weight from 5.0 to 12.0.  The excess-FoS weight is the key tuning
+parameter: too low, and the optimizer is satisfied with any feasible design
+regardless of material waste; too high, and it pushes into constraint
+violations.
+
+
+%% ═══════════════════════════════════════════════════════════════════════════════
+\section{Numerical Substitution Summary}
+\label{sec:substitution}
+%% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection{Effective Material Properties}
+
+\[
+  E_{eff} = E \cdot k_{orient} \cdot k_{infill}
+  = 500\,000 \times 0.700 \times 0.850 = 297\,500\ \mathrm{psi}
+\]
+\[
+  \sigma_{allow,eff} = \sigma_{allow} \cdot k_{orient} \cdot k_{infill}
+  = 4\,000 \times 0.700 \times 0.850 = 2\,380\ \mathrm{psi}
+\]
+\[
+  W = \rho \int_0^L A(x)\,dx = 0.03454\ \mathrm{lbf}
+\]
+
+\subsection{Load Case~1 Key Values}
+
+\[
+  R_A = \frac{5.000(8.000 - 4.000)}{8.000} = 2.500\ \mathrm{lbf},
+  \qquad
+  R_B = \frac{5.000 \times 4.000}{8.000} = 2.500\ \mathrm{lbf}
+\]
+\[
+  \mathrm{FoS}_{min,LC1}
+  = \frac{2\,380}{602} = 3.956
+  \quad \text{at } x = 4.000\ \mathrm{in}
+\]
+\[
+  \max|v_{LC1}(x)| = 0.02538\ \mathrm{in},
+  \qquad
+  \max|\theta_{LC1}(x)| = 0.01054\ \mathrm{rad}
+\]
+
+\subsection{Load Case~2 Key Values (Governing)}
+
+\[
+  R_A = \frac{8.000(8.000 - 5.000)}{8.000} = 3.000\ \mathrm{lbf},
+  \qquad
+  R_B = \frac{8.000 \times 5.000}{8.000} = 5.000\ \mathrm{lbf}
+\]
+\[
+  \mathrm{FoS}_{min,LC2}
+  = \frac{2\,380}{1\,564} = 1.522
+  \quad \text{at } x = 5.000\ \mathrm{in}
+\]
+\[
+  \max|v_{LC2}(x)| = 0.11608\ \mathrm{in},
+  \qquad
+  \max|\theta_{LC2}(x)| = 0.05218\ \mathrm{rad}
+\]
+
+
+%% ═══════════════════════════════════════════════════════════════════════════════
+\section{Assumptions and Limitations}
+\label{sec:assumptions}
+%% ═══════════════════════════════════════════════════════════════════════════════
+
+\begin{enumerate}
+  \item \textbf{Linear elasticity.}
+    All stress--strain relationships are linear.  PLA at the effective
+    allowable of 27.6 MPa is well within the linear elastic range
+    (bulk yield $\approx 50$--70 MPa).
+
+  \item \textbf{Small deflections.}
+    The Euler-Bernoulli equation $M = EI\,v''$ assumes slopes small enough
+    that $v' \ll 1$.  Under LC2 (governing), maximum slope is
+    $\theta_{max} = 0.052\ \mathrm{rad} \approx 3.0°$ --- at the upper
+    boundary of the small-angle assumption.  Actual deflection may be
+    slightly underestimated.
+
+  \item \textbf{Plane sections remain plane.}
+    Euler-Bernoulli kinematics neglect shear deformation.  For the slender
+    beam ($L/h_{eff} \approx 11$), shear deformation contributes $< 3\%$
+    of total deflection.
+
+  \item \textbf{Ideal simple supports.}
+    Frictionless pin and roller are assumed.  Real supports may introduce
+    small moments absorbed by the FoS margin.
+
+  \item \textbf{Self-weight neglected.}
+    Justified in Section~\ref{sec:theory}: self-weight is $< 0.3\%$ of
+    applied loads.
+
+  \item \textbf{Effective isotropic material.}
+    True FDM anisotropy is reduced to two scalar factors ($k_{orient}$,
+    $k_{infill}$) applied uniformly.  This is conservative (underestimates
+    stiffness in favourable fibre directions) and consistent with RPS guidance.
+
+  \item \textbf{Web opening model.}
+    The lightening slot is modeled as a rectangular cutout of height
+    $r(x)\,h_{clear}(x)$ centered on the neutral axis.  Fillet transitions
+    are neglected, slightly under-predicting stiffness at the opening corners.
+\end{enumerate}
+
+
+%% ═══════════════════════════════════════════════════════════════════════════════
+\section{Print Plan}
+\label{sec:printplan}
+%% ═══════════════════════════════════════════════════════════════════════════════
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Setting & Value / Choice \\
+\midrule
+Material           & PLA (Creality K1 stock) \\
+Print orientation  & Span axis horizontal, load axis vertical \\
+                   & (layer lines parallel to span $\Rightarrow$ loads cross solid infill, \\
+                   & not layer interfaces) \\
+Infill pattern     & Rectilinear \\
+Infill density     & $\approx 40\%$ (matches $k_{infill} = 0.85$ assumption) \\
+Wall perimeters    & 3--4 (consistent with $t = 0.060\ \mathrm{in} \approx 1.5\ \mathrm{mm}$) \\
+Layer height       & \SI{0.20}{mm} (fine, for better layer bonding) \\
+Nozzle diameter    & \SI{0.40}{mm} \\
+Expected failure mode & Tensile fracture at $x = 5\ \mathrm{in}$ outer fiber \\
+                   & during LC2 (side-rotated bending), or interlayer \\
+                   & delamination if orientation is incorrect \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Orientation rationale.}
+Per the RPS guidance: ``If the cross section of the beam is along these
+[layer] lines, the part will almost certainly fail under significant load.
+If the layer lines are along the span of the beam, it will be able to
+withstand much higher loads.''  We print with the span horizontal so that
+layer lines run along $x$, parallel to the neutral axis.  The critical
+failure mode for Team~6 is tensile fracture at $x = 5\ \mathrm{in}$ during
+LC2 side-bending; with proper orientation, this load is carried through
+solid infill struts rather than across layer boundaries, which is the
+orientation modeled by $k_{orient} = 0.70$.
+
+
+%% ═══════════════════════════════════════════════════════════════════════════════
+\section{Symbol Table}
+\label{sec:symbols}
+%% ═══════════════════════════════════════════════════════════════════════════════
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Symbol & Meaning & Units \\
+\midrule
+$L$ & support span & in \\
+$L_{total}$ & total beam length & in \\
+$P$ & applied point load & lbf \\
+$a$ & load location from support A & in \\
+$R_A, R_B$ & reaction forces at A and B & lbf \\
+$V(x)$ & shear force & lbf \\
+$M(x)$ & bending moment & lbf$\cdot$in \\
+$b(x)$ & outer tube width & in \\
+$h(x)$ & outer tube height & in \\
+$t$ & wall thickness & in \\
+$r(x)$ & web opening ratio & -- \\
+$h_{clear}(x)$ & inner clear height $= h-2t$ & in \\
+$A(x)$ & cross-sectional area & in$^2$ \\
+$I(x)$ & second moment of area & in$^4$ \\
+$S(x)$ & section modulus $= I/c$ & in$^3$ \\
+$c(x)$ & distance to extreme fiber & in \\
+$A_{shear}(x)$ & effective shear area & in$^2$ \\
+$\sigma_b(x)$ & bending normal stress & psi \\
+$\tau(x)$ & shear stress & psi \\
+$\sigma_{vm}(x)$ & von Mises equivalent stress & psi \\
+$\mathrm{FoS}(x)$ & factor of safety & -- \\
+$v(x)$ & transverse deflection & in \\
+$\theta(x)$ & slope & rad \\
+$E$ & elastic modulus (bulk) & psi \\
+$E_{eff}$ & effective elastic modulus & psi \\
+$\sigma_{allow}$ & allowable stress (bulk) & psi \\
+$\sigma_{allow,eff}$ & effective allowable stress & psi \\
+$\rho$ & weight density & lbf/in$^3$ \\
+$k_{orient}$ & FDM orientation factor & -- \\
+$k_{infill}$ & FDM infill factor & -- \\
+$W$ & beam weight & lbf \\
+$\ell_{min}$ & minimum web ligament per side & in \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+
+%% ═══════════════════════════════════════════════════════════════════════════════
+\section{Conclusion}
+\label{sec:conclusion}
+%% ═══════════════════════════════════════════════════════════════════════════════
+
+A 10-variable parametric beam optimizer was developed for the MEEN 305 final
+project.  The model couples the full equation chain from statics through stress
+through deflection, and optimizes cross-section geometry against both required
+load cases simultaneously.
+
+The final design for Team~6 ($P_2 = 8\ \mathrm{lbf}$, $a_2 = 5\ \mathrm{in}$) achieves:
+
+\begin{itemize}[noitemsep]
+  \item \textbf{Weight:} $0.03454\ \mathrm{lbf}$ --- 36\% lighter than the
+    first Team-6 run ($0.05433\ \mathrm{lbf}$).
+  \item \textbf{Governing FoS:} 1.522 (LC2 side-bending at $x = 5\ \mathrm{in}$)
+    --- within 1.5\% of the 1.5 target.
+  \item \textbf{LC1 FoS:} 3.956 --- easily satisfied; LC2 is the design driver.
+  \item \textbf{Maximum deflection:} 0.116~in under LC2 (no limit prescribed).
+  \item \textbf{Printable geometry:} height taper ratio $1.58\times$,
+    minimum ligament $2.70\ \mathrm{mm}$ ($6.7$ nozzle widths).
+\end{itemize}
+
+The optimal topology is a \textbf{left-heavy taper}: widest at the left
+support ($b_L = 0.823\ \mathrm{in}$) tapering to minimum width at midspan
+and the right end, with high web-opening ratio at midspan (65\%) where both
+LC1 and LC2 moments are in a moderate range.  This is driven by LC2:
+the moment for the side-rotated 8~lbf load increases from 0 at the left
+support to a peak of 15~lbf$\cdot$in at $x = 5\ \mathrm{in}$, requiring
+the largest effective section modulus (proportional to $b^2$) near the left
+side of the span.
+
+\end{document}

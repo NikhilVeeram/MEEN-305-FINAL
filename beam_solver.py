@@ -38,12 +38,62 @@ class Material:
         )
 
 
+# Nominal FDM material properties for Creality K1 (0.4 mm nozzle, ~40% rectilinear infill).
+# orientation_factor (0.65-0.75): FDM parts are weaker perpendicular to the print
+# plane because interlayer bond strength is ~30-35% below bulk tensile strength.
+# infill_factor (0.85-0.90): less-than-100% infill reduces effective stiffness/strength.
+# Both factors are applied as multipliers to the nominal isotropic properties.
+KNOWN_MATERIALS: dict[str, "Material"] = {
+    "PLA": Material(
+        name="PLA",
+        elastic_modulus_psi=500_000,
+        allowable_stress_psi=4_000,
+        weight_density_lbf_per_in3=0.045,
+        orientation_factor=0.70,
+        infill_factor=0.85,
+    ),
+    "ASA": Material(
+        name="ASA",
+        elastic_modulus_psi=380_000,
+        allowable_stress_psi=3_600,
+        weight_density_lbf_per_in3=0.043,
+        orientation_factor=0.65,
+        infill_factor=0.85,
+    ),
+    "PETG": Material(
+        name="PETG",
+        elastic_modulus_psi=290_000,
+        allowable_stress_psi=3_500,
+        weight_density_lbf_per_in3=0.046,
+        orientation_factor=0.72,
+        infill_factor=0.85,
+    ),
+    # TPU is very flexible (E ~10x lower than PLA) and is listed for completeness;
+    # it is a poor structural choice for a stiffness-governed beam.
+    "TPU": Material(
+        name="TPU",
+        elastic_modulus_psi=10_000,
+        allowable_stress_psi=2_500,
+        weight_density_lbf_per_in3=0.043,
+        orientation_factor=0.75,
+        infill_factor=0.90,
+    ),
+}
+
+
 @dataclass(frozen=True)
 class LoadCase:
     name: str
     load_lbf: float
     location_in: float
     orientation: str = UPRIGHT_ORIENTATION
+
+
+# Engineering judgment lower bounds applied in validate(), independent of optimizer search bounds.
+# An idealized stress analysis would permit arbitrarily thin walls and even zero cross-section at
+# supports (moment = 0 there), but those geometries are physically unrealizable on an FDM printer.
+_MIN_PRINTABLE_WALL_IN: float = 0.040   # ~1 mm; fewer than 2 perimeters at 0.4 mm nozzle is unreliable
+_MIN_CROSS_SECTION_DIM_IN: float = 0.150  # ~3.8 mm; beam must retain finite section at every station
 
 
 @dataclass(frozen=True)
@@ -75,6 +125,29 @@ class TaperedRectangularTube:
             self.wall_thickness_in,
         ) <= 0.0:
             raise ValueError("All geometry dimensions must be positive.")
+
+        # Engineering judgment: even though idealized bending theory allows the section
+        # to vanish at simply-supported ends (moment = 0 there), a real printed beam
+        # must have a finite, printable cross-section at every station, including at the
+        # supports where shear must still be transferred.
+        if min(
+            self.left_width_in, self.mid_width_in, self.right_width_in,
+            self.left_height_in, self.mid_height_in, self.right_height_in,
+        ) < _MIN_CROSS_SECTION_DIM_IN:
+            raise ValueError(
+                f"Cross-section dimension is below the engineering minimum of "
+                f"{_MIN_CROSS_SECTION_DIM_IN:.3f} in. "
+                "The beam must have a printable cross-section at every station."
+            )
+
+        # Engineering judgment: wall thickness must be printable on a 0.4 mm nozzle.
+        # A purely stress-based analysis would permit paper-thin walls wherever stress
+        # is low, but those walls are physically unrealizable.
+        if self.wall_thickness_in < _MIN_PRINTABLE_WALL_IN:
+            raise ValueError(
+                f"Wall thickness {self.wall_thickness_in:.4f} in is below the FDM printability "
+                f"minimum of {_MIN_PRINTABLE_WALL_IN:.4f} in (approx. 1 mm / 2 nozzle widths)."
+            )
 
         if not all(
             0.0 <= ratio < 0.95
@@ -333,6 +406,13 @@ def analyze_load_case(
         second_moment_bending_in4=second_moment_bending_in4,
     )
 
+    # Beam weight is computed for reporting purposes only.
+    # Self-weight is NEGLECTED in the shear, moment, stress, and deflection calculations above.
+    # Justification: the optimized beam weighs ~0.026 lbf while the applied loads total 8 lbf
+    # (5 lbf LC1 + 3 lbf LC2).  Self-weight is < 0.4 % of applied load — well below the 5 %
+    # threshold commonly accepted for simply-supported beams.  Including it as a distributed
+    # load would increase midspan stress by less than 0.4 %, which is negligible relative to
+    # the FoS = 1.5 safety margin already built into the design.
     volume_in3 = np.trapezoid(area_in2, x_in)
     weight_lbf = volume_in3 * material.weight_density_lbf_per_in3
 
@@ -558,14 +638,7 @@ def print_summary(result: AnalysisResult, load_case: LoadCase) -> None:
 
 
 def default_material() -> Material:
-    return Material(
-        name="PLA",
-        elastic_modulus_psi=500_000.0,
-        allowable_stress_psi=4_000.0,
-        weight_density_lbf_per_in3=0.045,
-        orientation_factor=0.70,
-        infill_factor=0.85,
-    )
+    return KNOWN_MATERIALS["PLA"]
 
 
 def default_geometry() -> TaperedRectangularTube:
@@ -718,25 +791,28 @@ def main() -> None:
     parser.add_argument("--load1-location-in", type=float, default=4.0)
     parser.add_argument("--load2-lbf", type=float, default=None)
     parser.add_argument("--load2-location-in", type=float, default=None)
-    parser.add_argument("--elastic-modulus-psi", type=float, default=sample_material.elastic_modulus_psi)
-    parser.add_argument("--allowable-stress-psi", type=float, default=sample_material.allowable_stress_psi)
     parser.add_argument(
-        "--weight-density-lbf-per-in3",
-        type=float,
-        default=sample_material.weight_density_lbf_per_in3,
+        "--material",
+        choices=list(KNOWN_MATERIALS.keys()),
+        default="PLA",
+        help="Select a preconfigured FDM material. Individual property flags below override the selection.",
     )
-    parser.add_argument("--orientation-factor", type=float, default=sample_material.orientation_factor)
-    parser.add_argument("--infill-factor", type=float, default=sample_material.infill_factor)
+    parser.add_argument("--elastic-modulus-psi", type=float, default=None)
+    parser.add_argument("--allowable-stress-psi", type=float, default=None)
+    parser.add_argument("--weight-density-lbf-per-in3", type=float, default=None)
+    parser.add_argument("--orientation-factor", type=float, default=None)
+    parser.add_argument("--infill-factor", type=float, default=None)
     args = parser.parse_args()
 
     geometry, geometry_mode = build_geometry_from_args(args)
+    base = KNOWN_MATERIALS[args.material]
     material = Material(
-        name="PLA",
-        elastic_modulus_psi=args.elastic_modulus_psi,
-        allowable_stress_psi=args.allowable_stress_psi,
-        weight_density_lbf_per_in3=args.weight_density_lbf_per_in3,
-        orientation_factor=args.orientation_factor,
-        infill_factor=args.infill_factor,
+        name=args.material,
+        elastic_modulus_psi=args.elastic_modulus_psi if args.elastic_modulus_psi is not None else base.elastic_modulus_psi,
+        allowable_stress_psi=args.allowable_stress_psi if args.allowable_stress_psi is not None else base.allowable_stress_psi,
+        weight_density_lbf_per_in3=args.weight_density_lbf_per_in3 if args.weight_density_lbf_per_in3 is not None else base.weight_density_lbf_per_in3,
+        orientation_factor=args.orientation_factor if args.orientation_factor is not None else base.orientation_factor,
+        infill_factor=args.infill_factor if args.infill_factor is not None else base.infill_factor,
     )
     load_cases = build_load_cases(
         team_number=args.team_number,

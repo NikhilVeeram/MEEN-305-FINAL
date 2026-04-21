@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from beam_solver import (
+    KNOWN_MATERIALS,
     Material,
     TaperedRectangularTube,
     analyze_load_case,
@@ -1064,15 +1065,17 @@ def main() -> None:
     parser.add_argument("--load2-lbf", type=float, default=None)
     parser.add_argument("--load2-location-in", type=float, default=None)
 
-    parser.add_argument("--elastic-modulus-psi", type=float, default=material_defaults.elastic_modulus_psi)
-    parser.add_argument("--allowable-stress-psi", type=float, default=material_defaults.allowable_stress_psi)
     parser.add_argument(
-        "--weight-density-lbf-per-in3",
-        type=float,
-        default=material_defaults.weight_density_lbf_per_in3,
+        "--material",
+        choices=list(KNOWN_MATERIALS.keys()),
+        default="PLA",
+        help="Select a preconfigured FDM material. Individual property flags below override the selection.",
     )
-    parser.add_argument("--orientation-factor", type=float, default=material_defaults.orientation_factor)
-    parser.add_argument("--infill-factor", type=float, default=material_defaults.infill_factor)
+    parser.add_argument("--elastic-modulus-psi", type=float, default=None)
+    parser.add_argument("--allowable-stress-psi", type=float, default=None)
+    parser.add_argument("--weight-density-lbf-per-in3", type=float, default=None)
+    parser.add_argument("--orientation-factor", type=float, default=None)
+    parser.add_argument("--infill-factor", type=float, default=None)
 
     parser.add_argument("--min-factor-of-safety", type=float, default=1.5)
     parser.add_argument("--max-deflection-in", type=float, default=None)
@@ -1088,13 +1091,14 @@ def main() -> None:
     parser.add_argument("--seed", type=int, default=305)
     args = parser.parse_args()
 
+    base = KNOWN_MATERIALS[args.material]
     material = Material(
-        name="PLA",
-        elastic_modulus_psi=args.elastic_modulus_psi,
-        allowable_stress_psi=args.allowable_stress_psi,
-        weight_density_lbf_per_in3=args.weight_density_lbf_per_in3,
-        orientation_factor=args.orientation_factor,
-        infill_factor=args.infill_factor,
+        name=args.material,
+        elastic_modulus_psi=args.elastic_modulus_psi if args.elastic_modulus_psi is not None else base.elastic_modulus_psi,
+        allowable_stress_psi=args.allowable_stress_psi if args.allowable_stress_psi is not None else base.allowable_stress_psi,
+        weight_density_lbf_per_in3=args.weight_density_lbf_per_in3 if args.weight_density_lbf_per_in3 is not None else base.weight_density_lbf_per_in3,
+        orientation_factor=args.orientation_factor if args.orientation_factor is not None else base.orientation_factor,
+        infill_factor=args.infill_factor if args.infill_factor is not None else base.infill_factor,
     )
     load_cases = build_load_cases(
         team_number=args.team_number,

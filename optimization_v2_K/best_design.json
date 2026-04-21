@@ -1,0 +1,74 @@
+{
+  "search_config": {
+    "initial_samples": 600,
+    "refinement_rounds": 7,
+    "elite_count": 20,
+    "local_samples_per_elite": 30,
+    "min_feasible_designs": 20,
+    "excess_fos_weight": 5.0,
+    "underutilization_weight": 0.5,
+    "envelope_stress_floor_ratio": 0.15,
+    "seed": 11111
+  },
+  "constraint_config": {
+    "min_factor_of_safety": 1.5,
+    "max_deflection_in": null
+  },
+  "geometry": {
+    "span_in": 8.0,
+    "total_length_in": 9.0,
+    "left_width_in": 0.35,
+    "mid_width_in": 0.35,
+    "right_width_in": 0.932402671138097,
+    "left_height_in": 0.561326089157163,
+    "mid_height_in": 0.383793264704168,
+    "right_height_in": 0.6173614003144859,
+    "wall_thickness_in": 0.06,
+    "left_web_opening_ratio": 0.0937558112047676,
+    "mid_web_opening_ratio": 0.3211118548403937,
+    "right_web_opening_ratio": 0.4183921193237443
+  },
+  "metrics": {
+    "weight_lbf": 0.03265825966225315,
+    "min_factor_of_safety": 1.5865676483205278,
+    "max_deflection_in": 0.09410548158679394,
+    "governing_load_case": "Load Case 1",
+    "governing_x_in": 4.0,
+    "feasible": true,
+    "objective": 0.2464942753604367,
+    "penalty": 0.0,
+    "constraint_violations": []
+  },
+  "load_cases": [
+    {
+      "name": "Load Case 1",
+      "orientation": "upright",
+      "load_lbf": 5.0,
+      "location_in": 4.0,
+      "reaction_a_lbf": 2.5,
+      "reaction_b_lbf": 2.5,
+      "max_von_mises_psi": 1500.093615623239,
+      "max_von_mises_x_in": 4.0,
+      "min_factor_of_safety": 1.5865676483205278,
+      "min_factor_of_safety_x_in": 4.0,
+      "max_deflection_in": 0.09410548158679394,
+      "max_deflection_x_in": 3.87,
+      "max_slope_rad": 0.03385543306449397
+    },
+    {
+      "name": "Load Case 2",
+      "orientation": "side",
+      "load_lbf": 3.0,
+      "location_in": 2.5,
+      "reaction_a_lbf": 2.0625,
+      "reaction_b_lbf": 0.9375,
+      "max_von_mises_psi": 725.6183703717811,
+      "max_von_mises_x_in": 2.49,
+      "min_factor_of_safety": 3.279961061047245,
+      "min_factor_of_safety_x_in": 2.49,
+      "max_deflection_in": 0.06045226221739441,
+      "max_deflection_x_in": 3.38,
+      "max_slope_rad": 0.027316187000223795
+    }
+  ]
+}
