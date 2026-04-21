@@ -94,6 +94,7 @@ class LoadCase:
 # supports (moment = 0 there), but those geometries are physically unrealizable on an FDM printer.
 _MIN_PRINTABLE_WALL_IN: float = 0.040   # ~1 mm; fewer than 2 perimeters at 0.4 mm nozzle is unreliable
 _MIN_CROSS_SECTION_DIM_IN: float = 0.150  # ~3.8 mm; beam must retain finite section at every station
+_MIN_WEB_LIGAMENT_IN: float = 0.060  # absolute minimum residual web ligament for printability and toughness
 
 
 @dataclass(frozen=True)
@@ -165,26 +166,29 @@ class TaperedRectangularTube:
         if min(self.left_height_in, self.mid_height_in, self.right_height_in) <= 2.0 * self.wall_thickness_in:
             raise ValueError("Wall thickness is too large for at least one tube height.")
 
-        minimum_remaining_ligament = np.min(
-            0.5
-            * (1.0 - np.array(
-                [
-                    self.left_web_opening_ratio,
-                    self.mid_web_opening_ratio,
-                    self.right_web_opening_ratio,
-                ]
-            ))
-            * np.array(
-                [
-                    self.left_height_in,
-                    self.mid_height_in,
-                    self.right_height_in,
-                ]
-            )
+        clear_heights = np.array(
+            [
+                self.left_height_in,
+                self.mid_height_in,
+                self.right_height_in,
+            ]
+        ) - 2.0 * self.wall_thickness_in
+        opening_ratios = np.array(
+            [
+                self.left_web_opening_ratio,
+                self.mid_web_opening_ratio,
+                self.right_web_opening_ratio,
+            ]
         )
-        if minimum_remaining_ligament <= self.wall_thickness_in:
+
+        # Remaining top/bottom web ligament uses the CLEAR height, not outer height.
+        # This enforces contiguous and printable webs after the wall thickness is removed.
+        minimum_remaining_ligament = np.min(0.5 * (1.0 - opening_ratios) * clear_heights)
+        required_ligament = max(self.wall_thickness_in, _MIN_WEB_LIGAMENT_IN)
+        if minimum_remaining_ligament <= required_ligament:
             raise ValueError(
-                "Web openings are too large; keep a remaining ligament larger than the wall thickness."
+                "Web openings are too large; keep a remaining ligament larger than "
+                f"{required_ligament:.3f} in."
             )
 
     def _interpolate_profile(

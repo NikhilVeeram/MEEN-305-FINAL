@@ -30,6 +30,16 @@ class ConstraintConfig:
 
 
 @dataclass(frozen=True)
+class DurabilityConfig:
+    min_web_ligament_in: float
+    min_shell_area_ratio: float
+    max_height_ratio: float
+    max_width_ratio: float
+    max_dim_slope_in_per_in: float
+    stress_concentration_limit: float
+
+
+@dataclass(frozen=True)
 class SearchConfig:
     initial_samples: int
     refinement_rounds: int
@@ -101,6 +111,7 @@ class DesignEvaluation:
     underutilization_score: float
     governing_load_case: str
     governing_x_in: float
+    durability_score: float
     constraint_violations: list[str]
     load_case_summaries: list[LoadCaseSummary]
 
@@ -191,12 +202,94 @@ def summarize_load_case(result: Any, load_case: Any) -> LoadCaseSummary:
     )
 
 
+def assess_durability(
+    geometry: TaperedRectangularTube,
+    analysis_results: list[Any],
+    durability_config: DurabilityConfig,
+) -> tuple[list[str], float]:
+    x_in = analysis_results[0].x_in
+
+    width = geometry.width_profile(x_in)
+    height = geometry.height_profile(x_in)
+    area = geometry.area(x_in)
+    opening_ratio = geometry.web_opening_ratio_profile(x_in)
+    clear_height = geometry.inner_height_profile(x_in)
+
+    web_ligament = 0.5 * (1.0 - opening_ratio) * clear_height
+    min_web_ligament = float(np.min(web_ligament))
+
+    shell_area_ratio = np.divide(
+        area,
+        width * height,
+        out=np.zeros_like(area),
+        where=(width * height) > 1.0e-12,
+    )
+    min_shell_area_ratio = float(np.min(shell_area_ratio))
+
+    height_ratio = float(np.max(height) / np.min(height))
+    width_ratio = float(np.max(width) / np.min(width))
+
+    height_slope = float(np.max(np.abs(np.gradient(height, x_in))))
+    width_slope = float(np.max(np.abs(np.gradient(width, x_in))))
+    max_dim_slope = max(height_slope, width_slope)
+
+    envelope_von_mises = np.max(np.vstack([result.von_mises_psi for result in analysis_results]), axis=0)
+    median_envelope = float(np.median(envelope_von_mises))
+    stress_concentration = float(np.max(envelope_von_mises) / max(median_envelope, 1.0e-9))
+
+    violations: list[str] = []
+    if min_web_ligament < durability_config.min_web_ligament_in:
+        violations.append(
+            f"Durability check failed: minimum residual web ligament {min_web_ligament:.4f} in is below "
+            f"{durability_config.min_web_ligament_in:.4f} in."
+        )
+    if min_shell_area_ratio < durability_config.min_shell_area_ratio:
+        violations.append(
+            f"Durability check failed: minimum shell area ratio {min_shell_area_ratio:.3f} is below "
+            f"{durability_config.min_shell_area_ratio:.3f}."
+        )
+    if height_ratio > durability_config.max_height_ratio:
+        violations.append(
+            f"Durability check failed: height ratio {height_ratio:.3f} exceeds {durability_config.max_height_ratio:.3f}."
+        )
+    if width_ratio > durability_config.max_width_ratio:
+        violations.append(
+            f"Durability check failed: width ratio {width_ratio:.3f} exceeds {durability_config.max_width_ratio:.3f}."
+        )
+    if max_dim_slope > durability_config.max_dim_slope_in_per_in:
+        violations.append(
+            f"Durability check failed: max profile slope {max_dim_slope:.3f} in/in exceeds "
+            f"{durability_config.max_dim_slope_in_per_in:.3f} in/in."
+        )
+    if stress_concentration > durability_config.stress_concentration_limit:
+        violations.append(
+            f"Durability check failed: stress concentration factor {stress_concentration:.3f} exceeds "
+            f"{durability_config.stress_concentration_limit:.3f}."
+        )
+
+    normalized_terms = [
+        max(0.0, (durability_config.min_web_ligament_in - min_web_ligament) / durability_config.min_web_ligament_in),
+        max(0.0, (durability_config.min_shell_area_ratio - min_shell_area_ratio) / durability_config.min_shell_area_ratio),
+        max(0.0, (height_ratio - durability_config.max_height_ratio) / durability_config.max_height_ratio),
+        max(0.0, (width_ratio - durability_config.max_width_ratio) / durability_config.max_width_ratio),
+        max(0.0, (max_dim_slope - durability_config.max_dim_slope_in_per_in) / durability_config.max_dim_slope_in_per_in),
+        max(
+            0.0,
+            (stress_concentration - durability_config.stress_concentration_limit)
+            / durability_config.stress_concentration_limit,
+        ),
+    ]
+    durability_score = float(np.mean(np.square(normalized_terms)))
+    return violations, durability_score
+
+
 def evaluate_design(
     evaluation_id: int,
     geometry: TaperedRectangularTube,
     material: Material,
     load_cases: list[Any],
     constraint_config: ConstraintConfig,
+    durability_config: DurabilityConfig,
     search_config: SearchConfig,
     stations: int,
 ) -> DesignEvaluation:
@@ -218,6 +311,7 @@ def evaluate_design(
             underutilization_score=float("inf"),
             governing_load_case="invalid",
             governing_x_in=float("nan"),
+            durability_score=float("inf"),
             constraint_violations=[str(exc)],
             load_case_summaries=[],
         )
@@ -277,12 +371,20 @@ def evaluate_design(
         )
         underutilization_score = float(np.mean(underutilization_ratio**2))
 
+    durability_violations, durability_score = assess_durability(
+        geometry=geometry,
+        analysis_results=analysis_results,
+        durability_config=durability_config,
+    )
+    violations.extend(durability_violations)
+
     penalty = 500.0 * fos_gap**2 + 10_000.0 * deflection_gap**2
     objective = (
         weight_lbf
         + penalty
         + search_config.excess_fos_weight * excess_factor_of_safety**2
         + search_config.underutilization_weight * underutilization_score
+        + 50.0 * durability_score
     )
 
     return DesignEvaluation(
@@ -298,6 +400,7 @@ def evaluate_design(
         underutilization_score=underutilization_score,
         governing_load_case=governing_summary.name,
         governing_x_in=governing_summary.min_factor_of_safety_x_in,
+        durability_score=durability_score,
         constraint_violations=violations,
         load_case_summaries=load_case_summaries,
     )
@@ -326,6 +429,7 @@ def export_design_study_csv(evaluations: list[DesignEvaluation], csv_path: Path)
                 "max_deflection_in",
                 "excess_factor_of_safety",
                 "underutilization_score",
+                "durability_score",
                 "governing_load_case",
                 "governing_x_in",
         "left_width_in",
@@ -369,6 +473,7 @@ def export_design_study_csv(evaluations: list[DesignEvaluation], csv_path: Path)
                 "max_deflection_in": evaluation.max_deflection_in,
                 "excess_factor_of_safety": evaluation.excess_factor_of_safety,
                 "underutilization_score": evaluation.underutilization_score,
+                "durability_score": evaluation.durability_score,
                 "governing_load_case": evaluation.governing_load_case,
                 "governing_x_in": evaluation.governing_x_in,
                 "left_width_in": evaluation.geometry.left_width_in,
@@ -555,6 +660,7 @@ def write_markdown_report(
         f"- Excess FoS above target: {best_evaluation.excess_factor_of_safety:.3f}",
         f"- Governing minimum-FoS load case: {best_evaluation.governing_load_case} at x = {best_evaluation.governing_x_in:.3f} in",
         f"- Maximum deflection: {best_evaluation.max_deflection_in:.5f} in",
+        f"- Durability score (0 is best): {best_evaluation.durability_score:.6f}",
         (
             "- Constraint status: feasible"
             if best_evaluation.feasible
@@ -700,6 +806,7 @@ def write_latex_report(
 \item Excess FoS above target: {best_evaluation.excess_factor_of_safety:.3f}
 \item Governing minimum-FoS load case: {latex_escape(best_evaluation.governing_load_case)} at $x={best_evaluation.governing_x_in:.3f}$ in
 \item Maximum deflection: {best_evaluation.max_deflection_in:.5f} in
+\item Durability score (0 is best): {best_evaluation.durability_score:.6f}
 \item Effective modulus: {material.effective_modulus_psi:.1f} psi
 \item Effective allowable stress: {material.effective_allowable_stress_psi:.1f} psi
 \end{{itemize}}
@@ -817,11 +924,13 @@ def save_best_design_json(
     best_evaluation: DesignEvaluation,
     search_config: SearchConfig,
     constraint_config: ConstraintConfig,
+    durability_config: DurabilityConfig,
 ) -> None:
     json_path = output_dir / "best_design.json"
     payload = {
         "search_config": asdict(search_config),
         "constraint_config": asdict(constraint_config),
+        "durability_config": asdict(durability_config),
         "geometry": asdict(best_evaluation.geometry),
         "metrics": {
             "weight_lbf": best_evaluation.weight_lbf,
@@ -832,6 +941,7 @@ def save_best_design_json(
             "feasible": best_evaluation.feasible,
             "objective": best_evaluation.objective,
             "penalty": best_evaluation.penalty,
+            "durability_score": best_evaluation.durability_score,
             "constraint_violations": best_evaluation.constraint_violations,
         },
         "load_cases": [asdict(summary) for summary in best_evaluation.load_case_summaries],
@@ -957,6 +1067,7 @@ def run_search(
     material: Material,
     load_cases: list[Any],
     constraint_config: ConstraintConfig,
+    durability_config: DurabilityConfig,
     search_config: SearchConfig,
     stations: int,
 ) -> list[DesignEvaluation]:
@@ -973,6 +1084,7 @@ def run_search(
                         material=material,
                         load_cases=load_cases,
                         constraint_config=constraint_config,
+                        durability_config=durability_config,
                         search_config=search_config,
                         stations=stations,
                     )
@@ -999,6 +1111,7 @@ def run_search(
                         material=material,
                         load_cases=load_cases,
                         constraint_config=constraint_config,
+                        durability_config=durability_config,
                         search_config=search_config,
                         stations=stations,
                     )
@@ -1080,6 +1193,13 @@ def main() -> None:
     parser.add_argument("--min-factor-of-safety", type=float, default=1.5)
     parser.add_argument("--max-deflection-in", type=float, default=None)
 
+    parser.add_argument("--durability-min-web-ligament-in", type=float, default=0.080)
+    parser.add_argument("--durability-min-shell-area-ratio", type=float, default=0.180)
+    parser.add_argument("--durability-max-height-ratio", type=float, default=2.40)
+    parser.add_argument("--durability-max-width-ratio", type=float, default=2.40)
+    parser.add_argument("--durability-max-dim-slope-in-per-in", type=float, default=0.25)
+    parser.add_argument("--durability-stress-concentration-limit", type=float, default=10.0)
+
     parser.add_argument("--initial-samples", type=int, default=240)
     parser.add_argument("--refinement-rounds", type=int, default=3)
     parser.add_argument("--elite-count", type=int, default=12)
@@ -1112,6 +1232,14 @@ def main() -> None:
         min_factor_of_safety=args.min_factor_of_safety,
         max_deflection_in=args.max_deflection_in,
     )
+    durability_config = DurabilityConfig(
+        min_web_ligament_in=args.durability_min_web_ligament_in,
+        min_shell_area_ratio=args.durability_min_shell_area_ratio,
+        max_height_ratio=args.durability_max_height_ratio,
+        max_width_ratio=args.durability_max_width_ratio,
+        max_dim_slope_in_per_in=args.durability_max_dim_slope_in_per_in,
+        stress_concentration_limit=args.durability_stress_concentration_limit,
+    )
     search_config = SearchConfig(
         initial_samples=args.initial_samples,
         refinement_rounds=args.refinement_rounds,
@@ -1131,6 +1259,7 @@ def main() -> None:
         material=material,
         load_cases=load_cases,
         constraint_config=constraint_config,
+        durability_config=durability_config,
         search_config=search_config,
         stations=args.stations,
     )
@@ -1142,7 +1271,7 @@ def main() -> None:
     best_evaluation = select_best_evaluation(evaluations)
 
     export_design_study_csv(evaluations, output_dir / "design_study.csv")
-    save_best_design_json(output_dir, best_evaluation, search_config, constraint_config)
+    save_best_design_json(output_dir, best_evaluation, search_config, constraint_config, durability_config)
 
     best_plot_dir = save_best_design_plots(
         output_dir=output_dir,

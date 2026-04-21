@@ -1,0 +1,83 @@
+{
+  "search_config": {
+    "initial_samples": 700,
+    "refinement_rounds": 8,
+    "elite_count": 24,
+    "local_samples_per_elite": 35,
+    "min_feasible_designs": 20,
+    "excess_fos_weight": 20.0,
+    "underutilization_weight": 0.6,
+    "envelope_stress_floor_ratio": 0.15,
+    "seed": 3030
+  },
+  "constraint_config": {
+    "min_factor_of_safety": 1.5,
+    "max_deflection_in": null
+  },
+  "durability_config": {
+    "min_web_ligament_in": 0.08,
+    "min_shell_area_ratio": 0.18,
+    "max_height_ratio": 2.1,
+    "max_width_ratio": 2.25,
+    "max_dim_slope_in_per_in": 0.22,
+    "stress_concentration_limit": 8.5
+  },
+  "geometry": {
+    "span_in": 8.0,
+    "total_length_in": 9.0,
+    "left_width_in": 0.35,
+    "mid_width_in": 0.35127783946584645,
+    "right_width_in": 0.35,
+    "left_height_in": 0.6940216816334981,
+    "mid_height_in": 0.5839442110205881,
+    "right_height_in": 0.551266753049946,
+    "wall_thickness_in": 0.0809289588399834,
+    "left_web_opening_ratio": 0.44248179128990517,
+    "mid_web_opening_ratio": 0.3042744441562003,
+    "right_web_opening_ratio": 0.45790178215609484
+  },
+  "metrics": {
+    "weight_lbf": 0.03643339569167053,
+    "min_factor_of_safety": 1.5909470062610411,
+    "max_deflection_in": 0.14084720989244448,
+    "governing_load_case": "Load Case 2",
+    "governing_x_in": 5.0,
+    "feasible": true,
+    "objective": 0.370786486922438,
+    "penalty": 0.0,
+    "durability_score": 0.0,
+    "constraint_violations": []
+  },
+  "load_cases": [
+    {
+      "name": "Load Case 1",
+      "orientation": "upright",
+      "load_lbf": 5.0,
+      "location_in": 4.0,
+      "reaction_a_lbf": 2.5,
+      "reaction_b_lbf": 2.5,
+      "max_von_mises_psi": 639.4161878737375,
+      "max_von_mises_x_in": 4.0,
+      "min_factor_of_safety": 3.7221453649996854,
+      "min_factor_of_safety_x_in": 4.0,
+      "max_deflection_in": 0.037621735609875556,
+      "max_deflection_x_in": 4.1,
+      "max_slope_rad": 0.014684128907514749
+    },
+    {
+      "name": "Load Case 2",
+      "orientation": "side",
+      "load_lbf": 8.0,
+      "location_in": 5.0,
+      "reaction_a_lbf": 3.0,
+      "reaction_b_lbf": 5.0,
+      "max_von_mises_psi": 1495.9643474193078,
+      "max_von_mises_x_in": 5.0,
+      "min_factor_of_safety": 1.5909470062610411,
+      "min_factor_of_safety_x_in": 5.0,
+      "max_deflection_in": 0.14084720989244448,
+      "max_deflection_x_in": 4.32,
+      "max_slope_rad": 0.0591253789292534
+    }
+  ]
+}

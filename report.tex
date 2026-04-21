@@ -225,9 +225,16 @@ becomes the vertical (bending) dimension and $h$ becomes the lateral dimension:
 \]
 
 \paragraph{Section modulus.}
+The section modulus uses $c_y(x)$ for upright bending (extreme fiber in the
+$y$-direction, i.e.\ half the outer height) and $c_z(x)$ for side-rotated
+bending (extreme fiber in the $z$-direction, i.e.\ half the outer width):
 \[
-  S(x) = \frac{I(x)}{c(x)},
-  \qquad c(x) = \frac{\text{outer vertical dimension}}{2}
+  S_{upright}(x) = \frac{I_{upright}(x)}{c_y(x)},
+  \qquad c_y(x) = \frac{h(x)}{2}
+\]
+\[
+  S_{side}(x) = \frac{I_{side}(x)}{c_z(x)},
+  \qquad c_z(x) = \frac{b(x)}{2}
 \]
 
 \paragraph{Shear area.}
@@ -235,7 +242,7 @@ becomes the vertical (bending) dimension and $h$ becomes the lateral dimension:
   A_{shear}(x) = [1 - r(x)]\,2t\,h_{clear,active}(x)
 \]
 where $h_{clear,active}$ is the clear inner dimension in the active bending
-orientation.
+orientation: $h_{clear}(x) = h(x)-2t$ for upright, $(b(x)-2t)$ for side.
 
 \begin{figure}[H]
   \centering
@@ -275,30 +282,37 @@ Shear force and bending moment (piecewise, with the load-point discontinuity):
   M(x) = \begin{cases} R_A\,x & 0 \le x < a \\ R_A\,x - P(x-a) & a < x \le L \end{cases}
 \]
 
-\subsection{Normal Bending Stress}
+\subsection{von Mises Stress}
 
-Using the Euler-Bernoulli flexure formula at the extreme fiber:
+The von Mises criterion combines all stress components into one scalar that
+can be compared directly against the effective allowable stress.  The three
+intermediate quantities that feed into it are:
+
+\paragraph{Normal bending stress.}
+Using the Euler-Bernoulli flexure formula at the extreme fiber
+(distance $c_y$ or $c_z$ from the neutral axis, depending on orientation):
 \[
   \sigma_b(x) = \frac{|M(x)|}{S(x)}
 \]
 
-\subsection{Shear Stress}
-
+\paragraph{Shear stress.}
 Shear is distributed over the active web area remaining after the lightening
 opening.  A conservative uniform-distribution approximation is used:
 \[
   \tau(x) = \frac{|V(x)|}{A_{shear}(x)}
 \]
 
-\subsection{von Mises Equivalent Stress}
-
-For the plane-stress state combining bending normal stress and shear:
+\paragraph{von Mises equivalent stress.}
+For the plane-stress state at the critical point (bending-dominant at the
+extreme fiber, shear-dominant at the neutral axis):
 \[
   \sigma_{vm}(x) = \sqrt{\sigma_b(x)^2 + 3\,\tau(x)^2}
 \]
 
-This combines bending and shear into a single scalar comparable to the
-effective allowable stress.
+The $\sigma_b^2$ term dominates wherever $|M(x)|$ is large (e.g.\ midspan);
+the $3\tau^2$ term dominates near the supports where $M \to 0$ but $V$ is
+nonzero.  The governing (maximum) von Mises stress determines the minimum
+FoS over the span.
 
 \subsection{Factor of Safety}
 
@@ -384,7 +398,7 @@ The full analysis pipeline from inputs to objective is:
 \]
 
 Both load cases use the same geometry functions; the active bending
-orientation switches between $I_{upright}$ (LC1) and $I_{side}$ (LC2).
+orientation switches between $I_{upright},\,c_y$ (LC1) and $I_{side},\,c_z$ (LC2).
 
 
 %% ═══════════════════════════════════════════════════════════════════════════════
@@ -904,7 +918,8 @@ $h_{clear}(x)$ & inner clear height $= h-2t$ & in \\
 $A(x)$ & cross-sectional area & in$^2$ \\
 $I(x)$ & second moment of area & in$^4$ \\
 $S(x)$ & section modulus $= I/c$ & in$^3$ \\
-$c(x)$ & distance to extreme fiber & in \\
+$c_y(x)$ & extreme-fiber distance, upright bending $= h(x)/2$ & in \\
+$c_z(x)$ & extreme-fiber distance, side bending $= b(x)/2$ & in \\
 $A_{shear}(x)$ & effective shear area & in$^2$ \\
 $\sigma_b(x)$ & bending normal stress & psi \\
 $\tau(x)$ & shear stress & psi \\
