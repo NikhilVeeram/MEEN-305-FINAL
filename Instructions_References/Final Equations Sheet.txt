@@ -1,0 +1,12 @@
+
+
+--- PAGE 1 ---
+
+Name:             MEEN 305   MEEN 305 – Solid Mechanics Spring 2023 – Final Exam  Printed Name: _____________________________________________        
+Linear strain tensor is symmetric part of  𝛁𝒖→ 𝜺=&𝜀((𝜀()𝜀(*𝜀()𝜀))𝜀)*𝜀(*𝜀)*𝜀**+=⎣⎢⎢⎢⎡	010(234010)+060(7234010*+080(7234010)+060(7060)234060*+080)7234010*+080(7234060*+080)7080*⎦⎥⎥⎥⎤ 
+ 
+Stress tensor 𝝈=&𝜎((𝜏()𝜏(*𝜏()𝜎))𝜏)*𝜏(*𝜏)*𝜎**+=⎣⎢⎢⎢⎢⎡𝑁𝑥𝐴+𝑀𝑦*𝐼𝑦−𝑀𝑧)𝐼𝑧−𝑇𝑥*𝐽−32𝑉𝑦𝐴L1−𝑦2𝑐𝑦2O𝑇𝑥)𝐽+32𝑉𝑧𝐴L1−𝑧2𝑐𝑧2O−𝑇𝑥*𝐽−32𝑉𝑦𝐴L1−𝑦2𝑐𝑦2O0 0𝑇𝑥)𝐽+32𝑉𝑧𝐴L1−𝑧2𝑐𝑧2O0 0⎦⎥⎥⎥⎥⎤    𝐽≡𝐼)+𝐼*𝐼*=∑𝐼*(T)+𝐴T		V∆𝑦XY(T)Z3[T\2𝐼)=∑𝐼)(T)+𝐴T		V∆𝑧XY(T)Z3[T\2  
+ Linear Hooke’s law.       𝜺=2]^_𝝈−^_𝑡𝑟(𝝈)𝑰+𝛼Δ𝑇𝑰          alternative form        𝝈=_2]^𝜺+_^	ef(𝜺)(2]^)(2g3^)𝑰−_2g3^𝛼Δ𝑇𝑰	  
+Stress transformation via a coordinate transformation  𝝈′=𝑸𝝈𝑸𝑻  𝑸=k𝒆(m⋅𝒆(	𝒆(m⋅𝒆)	𝒆(m⋅𝒆*	𝒆)m⋅𝒆(	𝒆)m⋅𝒆)	𝒆)m⋅𝒆*	𝒆*m⋅𝒆(	𝒆*m⋅𝒆)	𝒆*m⋅𝒆*	o Principal stresses are eigenvalues of stress tensor   𝜎2≥𝜎3≥𝜎q  Linear changes in axial length   𝐿∆𝐿=𝐿(∆𝑢+𝐿)∆𝑣+𝐿*∆𝑤  Force-displacement relationships          • 𝑢m=vw	_x+𝛼Δ𝑇→ ∆𝐿=vyw	z_x+𝐿𝛼∆𝑇{ • 𝜙m=}w	~→	∆𝜙=}{w	z~ • 𝑣	mm=𝜃*m=	_ • −𝑤	mm=𝜃)m=	_ 
+Failure theories • MNS →𝐹𝑂𝑆=	(||,||) • MSS →𝐹𝑂𝑆=	|g| • DE	→𝐹𝑂𝑆=	 • Buckling	→𝐹𝑜𝑆=	_z			V𝐼𝑦,𝐼𝑧Z|	(0,vw	)| von Mises stress, 𝜎6≡ VwgZ3+(wg)3+VgZ3+3𝜏()3+3𝜏(*3+3𝜏)*3=(g)3+(g)3+(g)3 𝜎6	=L|vw	|x+X+||X	O3+34}w	X	73+34}w	X	73              			𝜎6	=|vw	|x+f 𝑀)3+𝑀*3	¡3+34}w	f 	73 
+All work is to be shown, including FBDs. Please box your final answer. In the box, include the symbol representing the variable being solved for, the numeric answer, and the appropriate units. An answer without clear work will not receive full credit. An answer with incorrect units will not receive full credit.  

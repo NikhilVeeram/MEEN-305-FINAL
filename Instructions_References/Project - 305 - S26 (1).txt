@@ -1,0 +1,201 @@
+
+
+--- PAGE 1 ---
+
+Names: Team Number: 
+MEEN 305 – Project
+Design, build, and test of a topology optimized lightweight beam 
+Due April 26, 2026 by 11:59 PM 
+Project is a team assignment on the application of the deformation and failure analysis 
+concepts to design and structural optimization of a beam.  
+BACKGROUND AND  MOTIVATION – Many human-made  structures  utilize beams with 
+sophisticated topologies and cross-sections, see below.  Additionally, many animals have bones  with 
+similarly complex shapes, see the jawbone of the below badger skull.  
+
+
+--- PAGE 2 ---
+
+Names: Team Number: 
+DESIGN REQUIREMENTS – You are tasked to design a lightweight horizontal beam (see sketch 
+in Fig. 1). 
+Figure 1. Sketch of a lightweight beam (frontal view) 
+• The goal is to minimize the use of materials while meeting the safety requirements against
+failures. You will fabricate your design via 3D printing.
+• You need to design the shape of your beam, including the cross -section type (solid circular,
+rectangular, H, I, T, square tube, circular tube, etc.), taper (i.e. ℎ(𝑥), 𝑏(𝑥), 𝑑𝑖(𝑥), 𝑑𝑜(𝑥), 𝑏𝑓(𝑥),
+𝑡𝑤(𝑥), 𝑒𝑡𝑐. ), and any other weight reducing elements (e.g. holes). You will need to justify your
+choices using von Mises stress analysis.
+• The total length of the beam must 9”.
+• The span between the two supports is 𝐿 = 8".
+• The beam must be designed to support the following loading conditions:
+• Loading 1: A concentrated load of 5 lb is applied at the midspan.
+• Loading 2: The 5 lb load is removed. Your beam is then rotated 90° onto its side. Next, a
+concentrated load of (2 +  𝑇𝑒𝑎𝑚 #) lb applied at (2 +  
+𝑇𝑒𝑎𝑚 #
+2  ) inches from support A.
+• The design factor of safety is 1.5 for all possible failure modes.
+ANALYSIS REQUIREMENTS 
+• You need to write a computer program that automatically solves the statics problem for a simply
+supported beam subject to a single concentrated applied load between the supports. The program
+needs to calculate reaction forces and automatically generate plots of the shear force diagram 𝑉𝑦(𝑥)
+and bending moment diagram 𝑀𝑧(𝑥). The units of the plots must be clearly labeled as well as the
+name or symbol of the independent and dependent variables being plotted. The user inputs to the
+program must be the span, load magnitude, and load location.
+• The program must also take the basic tapered geometric dimensions of the beam as input, e.g. (i.e.
+ℎ(𝑥), 𝑏(𝑥), 𝑑𝑖(𝑥), 𝑑𝑜(𝑥), 𝑏𝑓(𝑥), 𝑡𝑤(𝑥), 𝑒𝑡𝑐. ). The program must compute and automatically plot
+the section modulus 𝑆(𝑥) and second moment of area 𝐼𝑧(𝑥) with appropriate units labeled. The
+program should also automatically plot the outer dimensions of cross -section viewed from the
+front (𝑥 − 𝑦 plane) and top (𝑥 − 𝑧 plane).
+• The relevant material properties must be a user input into the program.
+• The program must compute and automatically plot von Mises stress 𝜎𝑣𝑚(𝑥) and factor of safety
+𝐹𝑜𝑆(𝑥).
+• The program must compute and automatically plot vertical deflections 𝑣(𝑥).
+• The program must compute and automatically plot slope deflections 𝜃𝑧(𝑥) = 𝑣′(𝑥).
+x 
+y 
+z 
+
+--- PAGE 3 ---
+
+Names: Team Number: 
+• Your program should automatically calculate the weight of the beam. You can  neglect the weight
+of the beam  in your analysis , but you must justify this assumption and ensure that it is clearly
+commented in the program.
+• The computer program can be written in any language you like, including Python, MATLAB, or
+Excel.
+• You should use your program to optimize your beam’s topology and geometric cross -sectional
+design. This will involve a LOT of trail -and-error. If you’d prefer to avoid the trial -and-error
+approach, then you can alternatively use appropriate parameterization of the dimensions combined
+with built -in optimization tools. For example, if you are designing the height of a rectangular
+shaped beam, you can parameterize this as ℎ(𝑥) = 𝐻𝐿/2 × (
+𝑥
+𝐿/2)
+𝑛
+. With this parameterization, you
+could ask the built-in optimizing tool (e.g. Goal Seek in Excel) to minimize the standard deviation
+of 𝜎𝑣𝑚(𝑥) by changing 𝑛. The standard deviation will go to zero when 𝜎𝑣𝑚(𝑥) is constant with
+respect to 𝑥. Once you are happy with your value of 𝑛, you can optimize 𝐻𝐿/2 by asking the built
+in tools to find the value of 𝐻𝐿/2 that outputs a minimum factor of safety of 1.5.
+• Lastly, you should use your engineering judgement and intuition to constrain unrealistic designs
+that are artifacts of the idealized analysis. For example, the beam’s cross -section CANNOT taper
+to zero at the supports, even if the idealized analysis says i t can. The thickness of a tubular cross -
+section CANNOT be paper-thin, even if the idealized analysis says it can.
+• At minimum, you should try at least 20 design iterations that meet all design requirements. Of
+those 20 design iterations, a subset of them should be ruled out based on your engineering
+judgement of their designs being unphysical. Of the remaining design i teration, the “best” or
+“optimal” design is the one with the minimum weight.
+BUILD REQUIREMENTS 
+• You should develop a CAD model of your final “optimized” beam design.
+• This CAD model is then used  to 3D print  your “optimized” beam using a polymer-based
+material. You can select any of the materials available at the MEEN Rapid Prototyping Lab. You
+can also use other facilities, e.g., FEDC in Zachry Complex, Soft Mater, etc., to 3D print your
+design. Make sure you justify the material selection.  You should consider cost, mass density,
+printability, and mechanical properties in your material selection.
+• You need to document the printing process in terms of printing orientation, infill density, etc., and
+whether additional support structures are needed. You need to discuss any fabrication challenges
+and material/dimensional imperfections you may encounter during the fabrication . Also, discuss
+any final refinement that is done. If possible, please include photographs of the fabrication process.
+TESTING REQUIREMENTS 
+• You need to record a video of you r team demonstrating the load-bearing capacity of your beam
+under the two above loading conditions.
+• For each loading condition, measure and calculate the deformation. A horizontal string or
+background grid paper can be used as a baseline to measure deflections from.
+• The supports should each be 8” apart and at least 0.5” wide.
+• If you have access to a 5-gallon bucket, that is the ideal way to apply the load. Fill the bucket with
+the necessary amount of water to produce the desired load. Then hang the bucket from your beam.
+Hint: Do this outside in case your beam fails.
+
+--- PAGE 4 ---
+
+Names: Team Number: 
+BASIS FOR GRADE - Your team's grade will be based on the accuracy and detail of your analysis , 
+design rationale and justification,  fabrication process, and demonstration of load bearing ability of 
+your beam design. The goal is to minimize the use of materials and structural weight while meeting all 
+other design requirements. You will need to submit a project report with the following information: 
+• Report should be typed and nicely formatted, e.g. title page, page numbers, section headers,
+equation numbers, table/figure numbers, figure/table captions, etc.
+• Report should have a one paragraph abstract followed by the following sections:
+1. Design Requirements
+2. Theory and Analysis
+3. Build
+4. Test
+5. Discussion
+6. Author Contributions
+7. Appendix – Design Iterations
+• In the Design Requirements section, list the specific requirements for your team and FBD.
+• In the Theory and Analysis section, type out the key equations and their key assumptions.
+Briefly explain their implementation/parameterization in your program and built-in tools used.
+• Detailed engineering drawings of your final “optimized” beam design, e.g. from SolidWorks.
+• Provide a brief (few sentences) justification for why you chose your final geometric design and
+the rationale for your material selection. Put this in the Build section.
+• Provide detailed documentation of your 3D printing fabrication strategies, including rationale
+and justification of selecting printing factors. You can also include a discussion on fabrication
+challenges you encountered. Put this in the Build section. No other text needed.
+• Upload your test demonstration video as well as a short tutorial video on how to use your
+computer program to YouTube and include the link in the Test section of the  report. This
+can be public private link only accessible to the instructor and graders. You may include video
+of the build process, but it is NOT required. Make sure to get approval before recording in
+any of the rapid prototyping labs. No other text needed in the Test section of the report.
+• In the Discussion section, provide a table with a comparison of the theoretically predicted
+and experimentally measured values of the beam’s weight and maximum deflection under both
+loading conditions. Include the percent error between theory and experiment. Provide a brief
+discussion (about a paragraph or two) of the sources of error in the theory (e.g. assumptions,
+neglecting weight of beam, linear elasticity) and sources of experimental error (e.g. load
+inaccuracies, measurement error, dimensional tolerances exceeded, etc.).
+• Provide at least 20 screenshots of your 20 design iterations. No need to format these nicely.
+Just drop them into the Appendix section. No need to have Figure labels, captions, or text
+for these. Include a table of the predicted beam’s weight for each of the 20 design iterations.
+• In the Author Contributions section, describe the tasks and responsibilities of each member
+and the work coordination among all members of your team.
+• Only one team member will upload the report and your program on behalf of the entire team.
+• Each team member must complete an individual peer assessment form (provided on the next
+page) and upload to CANVAS.
+PEER ASSESSMENT  - Be sure to balance the workload of this project evenly among team 
+members. After the project is completed, an individual peer assessment (only visible to instructors and 
+graders) will be completed by the student to voice praises or concerns about project contributions 
+from their fellow teammates. 
+
+--- PAGE 5 ---
+
+Names: Team Number: 
+Student Self and Peer Evaluation for MEEN 305 Project 
+This form will be used to assess the performance of all the members of your group. Your responses 
+are to be confidential and only known by the graders and yourself. Do not discuss your responses 
+with your group members. Type your team number in place of “#
+”. 
+TEAM: #
+Based on the following scale, fill in the number of points earned by each group member for each 
+category using the following scale: 
+5 – Excellent 4 – Good 3 – Fair 2 – Poor 1 – Did Nothing 
+Team Member 
+Name 
+Assisted 
+with 
+analysis 
+Assisted 
+with 
+fabrication 
+Assisted 
+with 
+testing 
+Assisted 
+with writing 
+the report 
+Completed the 
+assigned tasks 
+that were given 
+by group 
+Actively 
+responded to 
+group 
+communications Total 
+1. 
+2. 
+3. 
+4. 
+5. 
+6. 
+If you have any additional comments that were not addressed in the table, write them here. This is 
+an additional opportunity to respectfully voice praises or concerns about your group members. 
+When finished, please edit the name of this document by replacing the “ #” with your team 
+number. Save and submit to CANVAS. 

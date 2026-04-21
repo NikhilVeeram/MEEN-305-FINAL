@@ -1,0 +1,122 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{float}
+\title{Beam Optimization Report}
+\date{}
+\begin{document}
+\maketitle
+
+\section*{Search Summary}
+\begin{itemize}
+\item Search method: stratified global sampling with elite local refinement
+\item Total evaluated designs: 144
+\item Feasible designs found: 144
+\item Minimum required factor of safety: 1.500
+\item Maximum allowed deflection: not enforced
+\item Random seed: 305
+\end{itemize}
+
+\section*{Best Design}
+\begin{itemize}
+\item Weight: 0.10285 lbf
+\item Minimum factor of safety: 13.855
+\item Maximum deflection: 0.00763 in
+\item Effective modulus: 297500.0 psi
+\item Effective allowable stress: 2380.0 psi
+\end{itemize}
+
+\subsection*{Geometry Variables}
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Variable & Value \\
+\midrule
+$L$ [in] & 8.000 \\
+$L_{total}$ [in] & 9.000 \\
+$b_L$ [in] & 0.755 \\
+$b_M$ [in] & 1.205 \\
+$b_R$ [in] & 1.162 \\
+$h_L$ [in] & 0.700 \\
+$h_M$ [in] & 0.706 \\
+$h_R$ [in] & 1.222 \\
+$t$ [in] & 0.082 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Beam Structure and Parameters}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{beam_parameter_map.png}
+\caption{Variable map used in the optimization run.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{best_design/outer_dimension_views.png}
+\caption{Outer dimension views for the best design.}
+\end{figure}
+
+\subsection*{Best-Design Load-Case Metrics}
+\begin{center}
+\begin{tabular}{lllllll}
+\toprule
+Load Case & Orientation & Load [lbf] & Location [in] & Min FoS & Max Defl. [in] & Max $\sigma_{vm}$ [psi] \\
+\midrule
+Load Case 1 & upright & 5.000 & 4.000 & 13.855 & 0.00763 & 171.8 \\
+Load Case 2 & side & 3.000 & 2.500 & 29.869 & 0.00214 & 79.7 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{General Equations}
+\subsection*{Geometry}
+\[
+b(x)=\begin{cases}0.7545 + (0.1126)x, & 0 \le x \le 4.0000\\1.2051 + (-0.0107)(x-4.0000), & 4.0000 < x \le 8.0000\end{cases}
+\]
+\[
+h(x)=\begin{cases}0.7000 + (0.0015)x, & 0 \le x \le 4.0000\\0.7060 + (0.1290)(x-4.0000), & 4.0000 < x \le 8.0000\end{cases}
+\]
+\[
+A(x)=b(x)h(x)-[b(x)-2t][h(x)-2t]
+\]
+\[
+I_{upright}(x)=\frac{b(x)h(x)^3-[b(x)-2t][h(x)-2t]^3}{12}
+\]
+\[
+I_{side}(x)=\frac{h(x)b(x)^3-[h(x)-2t][b(x)-2t]^3}{12}
+\]
+\[
+S(x)=\frac{I(x)}{c(x)}
+\]
+
+\subsection*{Statics, Stress, and Deflection}
+\[
+R_A=\frac{P(L-a)}{L}, \qquad R_B=\frac{Pa}{L}
+\]
+\[
+\sigma_b(x)=\frac{|M(x)|}{S(x)}
+\]
+\[
+\tau(x)=\frac{|V(x)|}{A_{shear}(x)}
+\]
+\[
+\sigma_{vm}(x)=\sqrt{\sigma_b(x)^2+3\tau(x)^2}
+\]
+\[
+FoS(x)=\frac{\sigma_{allow,eff}}{\sigma_{vm}(x)}
+\]
+\[
+E_{eff}I(x)v''(x)=M(x)
+\]
+\[
+W=\rho\int_0^L A(x)\,dx
+\]
+
+\section*{Automatic Trail of Tried Designs}
+The optimizer writes every evaluated candidate to \texttt{design\_study.csv}, the selected best design to \texttt{best\_design.json}, and the best-design plots to the \texttt{best\_design/} folder.
+
+\end{document}

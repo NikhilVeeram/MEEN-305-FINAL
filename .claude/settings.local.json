@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/nikhi/.cavekit/commands/**)",
+      "Read(//c/Users/nikhi/.cavekit/skills/**)",
+      "Read(//c/Users/nikhi/.cavekit/**)"
+    ]
+  }
+}

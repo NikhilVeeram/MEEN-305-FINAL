@@ -1,0 +1,60 @@
+{
+  "search_config": {
+    "initial_samples": 80,
+    "refinement_rounds": 2,
+    "elite_count": 8,
+    "local_samples_per_elite": 8,
+    "min_feasible_designs": 20,
+    "seed": 305
+  },
+  "constraint_config": {
+    "min_factor_of_safety": 1.5,
+    "max_deflection_in": null
+  },
+  "geometry": {
+    "span_in": 8.0,
+    "total_length_in": 9.0,
+    "left_width_in": 0.7545151556335902,
+    "mid_width_in": 1.205060471791655,
+    "right_width_in": 1.1622962944920618,
+    "left_height_in": 0.7,
+    "mid_height_in": 0.7059767592333852,
+    "right_height_in": 1.2220622328292978,
+    "wall_thickness_in": 0.08152157217994964
+  },
+  "metrics": {
+    "weight_lbf": 0.10284595259838353,
+    "min_factor_of_safety": 13.855361513875554,
+    "max_deflection_in": 0.0076304818439856936,
+    "feasible": true,
+    "objective": 0.10284595259838353,
+    "penalty": 0.0,
+    "constraint_violations": []
+  },
+  "load_cases": [
+    {
+      "name": "Load Case 1",
+      "orientation": "upright",
+      "load_lbf": 5.0,
+      "location_in": 4.0,
+      "reaction_a_lbf": 2.5,
+      "reaction_b_lbf": 2.5,
+      "max_von_mises_psi": 171.77465904563599,
+      "min_factor_of_safety": 13.855361513875554,
+      "max_deflection_in": 0.0076304818439856936,
+      "max_slope_rad": 0.0031744295020805203
+    },
+    {
+      "name": "Load Case 2",
+      "orientation": "side",
+      "load_lbf": 3.0,
+      "location_in": 2.5,
+      "reaction_a_lbf": 2.0625,
+      "reaction_b_lbf": 0.9375,
+      "max_von_mises_psi": 79.68138486456245,
+      "min_factor_of_safety": 29.86895877933571,
+      "max_deflection_in": 0.002140544550583142,
+      "max_slope_rad": 0.0011147968029623135
+    }
+  ]
+}
