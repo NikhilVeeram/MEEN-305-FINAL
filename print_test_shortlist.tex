@@ -1,0 +1,312 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+\usepackage{tabularx}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{ragged2e}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=blue,
+  urlcolor=blue
+}
+
+\newcommand{\pathlink}[1]{\href{run:#1}{\nolinkurl{#1}}}
+\newcommand{\runlink}[2]{\href{run:#1}{#2}}
+\newcommand{\designid}[1]{\nolinkurl{#1}}
+\newcolumntype{Y}{>{\RaggedRight\arraybackslash}X}
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{4pt}
+
+\title{MEEN 305 Print-Test Shortlist}
+\author{}
+\date{2026-04-23}
+
+\begin{document}
+\maketitle
+
+\section*{Bottom Line}
+
+The current project-correct design to print first is
+\designid{continuous_uniform_both_load_cases_9in_corrected}. It is the
+active source-of-truth design in this repo because it explicitly uses the
+correct beam geometry: total length \(9.0\ \mathrm{in}\)
+\((228.6\ \mathrm{mm})\), supports at \(x=0.5\ \mathrm{in}\)
+\((12.7\ \mathrm{mm})\) and \(x=8.5\ \mathrm{in}\)
+\((215.9\ \mathrm{mm})\), and the Team 6 load cases.
+
+The older archived designs are still useful as comparison specimens, but they
+should be treated as \emph{benchmark prints}, not as the final project answer,
+because the repo notes state that many archived outputs predate the full
+9-inch support-placement correction.
+
+\section*{What To Do Next}
+
+\begin{enumerate}
+  \item Print and test
+  \texttt{continuous\_uniform\_both\_load\_cases\_9in\_corrected} first. This
+  is the only design in the shortlist that is both current and project-correct.
+  \item Print \texttt{optimization\_final} as the archived baseline. It is the
+  cleanest older ``final-style'' candidate and remains one of the best fully
+  documented print-friendly references in the repo.
+  \item Print \texttt{optimization\_revised\_symmetric\_light} next if you want
+  a cleaner symmetric comparison that still stays near the FoS \(=1.5\) target.
+  \item Print \texttt{optimization\_v2\_Q7777} as the aggressive lightweight
+  benchmark. It is one of the lightest archived Team-6-style passing options.
+  \item If you want a fifth print, use
+  \texttt{optimization\_revised\_symmetric\_balanced} as a smooth, symmetric
+  control specimen.
+  \item Do \emph{not} spend a print on both \texttt{optimization\_final} and
+  \texttt{optimization\_connected\_v2\_6060}; their stored geometry and metrics
+  are effectively identical in this repo.
+  \item Use one print profile for all test pieces so the comparison is fair,
+  then record actual mass, max elastic deflection, visible failure location,
+  and whether failure starts near the predicted governing section.
+  \item After testing, update the final report with corrected 9-inch results
+  plus a short validation table comparing predicted and measured behavior.
+\end{enumerate}
+
+\section*{Common Material And Print Assumptions}
+
+These are the analysis assumptions used by the active solver in
+\pathlink{scripts/beam_solver.py}.
+
+\small
+\begin{tabularx}{\textwidth}{@{}p{0.28\textwidth}YY@{}}
+\toprule
+Property & Imperial & Metric \\
+\midrule
+Material family & PLA & PLA \\
+Printer basis & 0.4 mm nozzle, about 40\% rectilinear infill & 0.0157 in nozzle, about 40\% rectilinear infill \\
+Beam length & \(9.0\ \mathrm{in}\) total, \(8.0\ \mathrm{in}\) support span & \(228.6\ \mathrm{mm}\) total, \(203.2\ \mathrm{mm}\) support span \\
+Support locations & \(x_A=0.5\ \mathrm{in}\), \(x_B=8.5\ \mathrm{in}\) & \(x_A=12.7\ \mathrm{mm}\), \(x_B=215.9\ \mathrm{mm}\) \\
+Load Case 1 & \(5.0\ \mathrm{lbf}\) at \(4.0\ \mathrm{in}\) from A & \(22.24\ \mathrm{N}\) at \(101.6\ \mathrm{mm}\) from A \\
+Load Case 2 & \(8.0\ \mathrm{lbf}\) at \(5.0\ \mathrm{in}\) from A & \(35.59\ \mathrm{N}\) at \(127.0\ \mathrm{mm}\) from A \\
+Nominal elastic modulus & \(500{,}000\ \mathrm{psi}\) & \(3447.38\ \mathrm{MPa}\) \\
+Nominal allowable stress & \(4{,}000\ \mathrm{psi}\) & \(27.58\ \mathrm{MPa}\) \\
+Weight density & \(0.045\ \mathrm{lbf/in^3}\) & \(12.22\ \mathrm{kN/m^3}\) (about \(1.25\ \mathrm{g/cm^3}\) mass density) \\
+Orientation factor & \(0.70\) & \(0.70\) \\
+Infill factor & \(0.85\) & \(0.85\) \\
+Effective modulus used in solver & \(297{,}500\ \mathrm{psi}\) & \(2051.19\ \mathrm{MPa}\) \\
+Effective allowable stress used in solver & \(2{,}380\ \mathrm{psi}\) & \(16.41\ \mathrm{MPa}\) \\
+Hard printability floor & wall thickness \(\ge 0.040\ \mathrm{in}\), dimension \(\ge 0.150\ \mathrm{in}\) & wall thickness \(\ge 1.016\ \mathrm{mm}\), dimension \(\ge 3.81\ \mathrm{mm}\) \\
+Durability screen target & residual ligament \(\ge 0.080\ \mathrm{in}\) & residual ligament \(\ge 2.032\ \mathrm{mm}\) \\
+\bottomrule
+\end{tabularx}
+\normalsize
+
+\section*{Recommended Print Queue}
+
+If you only want four prints, stop after Item 4. Item 5 is the optional control.
+
+\small
+\begin{longtable}{@{}p{0.05\textwidth}p{0.25\textwidth}p{0.15\textwidth}p{0.09\textwidth}p{0.15\textwidth}p{0.24\textwidth}@{}}
+\toprule
+Order & Design & Weight [lbf / N] & Min FoS & Max Defl. [in / mm] & Why it belongs in the test set \\
+\midrule
+\endhead
+1 & \designid{continuous_uniform_both_load_cases_9in_corrected} & 0.04079 / 0.181 & 1.503 & 0.16121 / 4.10 & Current project-correct reference design; must-print. \\
+2 & \designid{optimization_final} & 0.03018 / 0.134 & 1.634 & 0.12226 / 3.11 & Best archived final-style benchmark with full package and clean printability. \\
+3 & \designid{optimization_revised_symmetric_light} & 0.03254 / 0.145 & 1.515 & 0.13453 / 3.42 & Best symmetric near-target comparator. \\
+4 & \designid{optimization_v2_Q7777} & 0.03454 / 0.154 & 1.522 & 0.11608 / 2.95 & Lightest archived Team-6-style passing option; useful aggressive benchmark. \\
+5 & \designid{optimization_revised_symmetric_balanced} & 0.02649 / 0.118 & 1.863 & 0.09424 / 2.39 & Optional smooth control specimen; easiest geometry family to compare against. \\
+\bottomrule
+\end{longtable}
+\normalsize
+
+\section*{Design Notes}
+
+\subsection*{1. Corrected 9 in Reference}
+
+\textbf{Why first:} this is the repo's current recommended design in
+\pathlink{docs/notes/current_design_selection.md}. It is the one that matches
+the corrected 9-inch beam with supports at \(x=0.5\ \mathrm{in}\)
+\((12.7\ \mathrm{mm})\) and \(x=8.5\ \mathrm{in}\)
+\((215.9\ \mathrm{mm})\).
+
+\small
+\begin{tabularx}{\textwidth}{@{}p{0.31\textwidth}Y@{}}
+\toprule
+Property & Value \\
+\midrule
+Design ID & \designid{continuous_uniform_both_load_cases_9in_corrected} \\
+Widths & \(0.521 / 0.294 / 0.521\ \mathrm{in}\) \\ \(13.24 / 7.48 / 13.24\ \mathrm{mm}\) \\
+Heights & \(0.659 / 0.713 / 0.659\ \mathrm{in}\) \\ \(16.73 / 18.11 / 16.73\ \mathrm{mm}\) \\
+Wall thickness & \(0.0508\ \mathrm{in}\) \\ \(1.290\ \mathrm{mm}\) \\
+Web openings & \(0 / 0 / 0\) \\
+Governing case & Load Case 2 at global \(x=5.5\ \mathrm{in}\) \\ global \(x=139.7\ \mathrm{mm}\) \\
+Minimum FoS & \(1.503\) \\
+Maximum deflection & \(0.16121\ \mathrm{in}\) \\ \(4.095\ \mathrm{mm}\) \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.5em}
+\begin{tabularx}{\textwidth}{@{}p{0.22\textwidth}Y@{}}
+\toprule
+File & Link \\
+\midrule
+Package folder & \runlink{designs/packages/continuous_design_deliverables_9in_corrected/continuous_uniform_both_load_cases_9in_corrected}{Open package folder} \\
+STL & \runlink{designs/packages/continuous_design_deliverables_9in_corrected/continuous_uniform_both_load_cases_9in_corrected/continuous_uniform_both_load_cases_9in_corrected.stl}{Open STL} \\
+Best design JSON & \runlink{designs/packages/continuous_design_deliverables_9in_corrected/continuous_uniform_both_load_cases_9in_corrected/best_design.json}{Open JSON} \\
+Report & \runlink{designs/packages/continuous_design_deliverables_9in_corrected/continuous_uniform_both_load_cases_9in_corrected/optimization_report.md}{Open report} \\
+\bottomrule
+\end{tabularx}
+\normalsize
+
+\subsection*{2. Archived Final Baseline}
+
+\textbf{Why second:} this is the cleanest archived ``final'' comparison print.
+The archived printability note explicitly calls it a defensible final choice.
+
+\small
+\begin{tabularx}{\textwidth}{@{}p{0.31\textwidth}Y@{}}
+\toprule
+Property & Value \\
+\midrule
+Design ID & \designid{optimization_final} \\
+Widths & \(0.446 / 0.350 / 0.572\ \mathrm{in}\) \\ \(11.32 / 8.90 / 14.54\ \mathrm{mm}\) \\
+Heights & \(1.051 / 0.559 / 0.530\ \mathrm{in}\) \\ \(26.69 / 14.21 / 13.46\ \mathrm{mm}\) \\
+Wall thickness & \(0.0600\ \mathrm{in}\) \\ \(1.524\ \mathrm{mm}\) \\
+Web openings & \(0.621 / 0.525 / 0.297\) \\
+Governing case & Load Case 2 at \(x=5.0\ \mathrm{in}\) \\ \(x=127.0\ \mathrm{mm}\) \\
+Minimum FoS & \(1.634\) \\
+Maximum deflection & \(0.12226\ \mathrm{in}\) \\ \(3.105\ \mathrm{mm}\) \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.5em}
+\begin{tabularx}{\textwidth}{@{}p{0.22\textwidth}Y@{}}
+\toprule
+File & Link \\
+\midrule
+Package folder & \runlink{archive/deprecated_assets/relevant_design_packages/optimization_final}{Open package folder} \\
+STL & \runlink{archive/deprecated_assets/relevant_design_packages/optimization_final/optimization_final.stl}{Open STL} \\
+Best design JSON & \runlink{archive/deprecated_assets/relevant_design_packages/optimization_final/best_design.json}{Open JSON} \\
+Report & \runlink{archive/deprecated_assets/relevant_design_packages/optimization_final/optimization_report.md}{Open report} \\
+\bottomrule
+\end{tabularx}
+\normalsize
+
+\subsection*{3. Symmetric Near-Target Comparator}
+
+\textbf{Why third:} this is the best archived symmetric design that still stays
+very close to the FoS target. It is useful if you want a specimen that is easy
+to explain and visually cleaner than the more asymmetric archived runs.
+
+\small
+\begin{tabularx}{\textwidth}{@{}p{0.31\textwidth}Y@{}}
+\toprule
+Property & Value \\
+\midrule
+Design ID & \designid{optimization_revised_symmetric_light} \\
+Widths & \(0.535 / 0.362 / 0.535\ \mathrm{in}\) \\ \(13.58 / 9.21 / 13.58\ \mathrm{mm}\) \\
+Heights & \(0.453 / 0.493 / 0.453\ \mathrm{in}\) \\ \(11.50 / 12.52 / 11.50\ \mathrm{mm}\) \\
+Wall thickness & \(0.0600\ \mathrm{in}\) \\ \(1.524\ \mathrm{mm}\) \\
+Web openings & \(0.000 / 0.266 / 0.000\) \\
+Governing case & Load Case 2 at \(x=5.0\ \mathrm{in}\) \\ \(x=127.0\ \mathrm{mm}\) \\
+Minimum FoS & \(1.515\) \\
+Maximum deflection & \(0.13453\ \mathrm{in}\) \\ \(3.417\ \mathrm{mm}\) \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.5em}
+\begin{tabularx}{\textwidth}{@{}p{0.22\textwidth}Y@{}}
+\toprule
+File & Link \\
+\midrule
+Package folder & \runlink{archive/deprecated_assets/relevant_design_packages/optimization_revised_symmetric_light}{Open package folder} \\
+STL & \runlink{archive/deprecated_assets/relevant_design_packages/optimization_revised_symmetric_light/optimization_revised_symmetric_light.stl}{Open STL} \\
+Best design JSON & \runlink{archive/deprecated_assets/relevant_design_packages/optimization_revised_symmetric_light/best_design.json}{Open JSON} \\
+Report & \runlink{archive/deprecated_assets/relevant_design_packages/optimization_revised_symmetric_light/optimization_report.md}{Open report} \\
+\bottomrule
+\end{tabularx}
+\normalsize
+
+\subsection*{4. Aggressive Lightweight Benchmark}
+
+\textbf{Why fourth:} among the archived Team-6-style designs that still pass
+cleanly, this is the lightweight aggressive benchmark. It is not the current
+final answer, but it is still a strong comparison specimen.
+
+\small
+\begin{tabularx}{\textwidth}{@{}p{0.31\textwidth}Y@{}}
+\toprule
+Property & Value \\
+\midrule
+Design ID & \designid{optimization_v2_Q7777} \\
+Widths & \(0.823 / 0.350 / 0.350\ \mathrm{in}\) \\ \(20.90 / 8.89 / 8.89\ \mathrm{mm}\) \\
+Heights & \(0.959 / 0.727 / 0.606\ \mathrm{in}\) \\ \(24.37 / 18.46 / 15.38\ \mathrm{mm}\) \\
+Wall thickness & \(0.0600\ \mathrm{in}\) \\ \(1.524\ \mathrm{mm}\) \\
+Web openings & \(0.334 / 0.650 / 0.276\) \\
+Governing case & Load Case 2 at \(x=5.0\ \mathrm{in}\) \\ \(x=127.0\ \mathrm{mm}\) \\
+Minimum FoS & \(1.522\) \\
+Maximum deflection & \(0.11608\ \mathrm{in}\) \\ \(2.949\ \mathrm{mm}\) \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.5em}
+\begin{tabularx}{\textwidth}{@{}p{0.22\textwidth}Y@{}}
+\toprule
+File & Link \\
+\midrule
+Data folder & \runlink{archive/deprecated_assets/optimization_v2_Q7777}{Open data folder} \\
+STL & \runlink{archive/deprecated_assets/models_3d/optimization_v2_q7777.stl}{Open STL} \\
+Best design JSON & \runlink{archive/deprecated_assets/optimization_v2_Q7777/best_design.json}{Open JSON} \\
+Report & \runlink{archive/deprecated_assets/optimization_v2_Q7777/optimization_report.md}{Open report} \\
+\bottomrule
+\end{tabularx}
+\normalsize
+
+\subsection*{5. Symmetric Balanced Control (Optional)}
+
+\textbf{Why optional:} this is a good control print when you want a smooth,
+very symmetric geometry with comfortable margin. It is lighter than the other
+archived candidates listed here, but it is also more conservative than the
+near-target options because the minimum FoS stays well above 1.5.
+
+\small
+\begin{tabularx}{\textwidth}{@{}p{0.31\textwidth}Y@{}}
+\toprule
+Property & Value \\
+\midrule
+Design ID & \designid{optimization_revised_symmetric_balanced} \\
+Widths & \(0.350 / 0.411 / 0.350\ \mathrm{in}\) \\ \(8.89 / 10.44 / 8.89\ \mathrm{mm}\) \\
+Heights & \(0.785 / 0.777 / 0.785\ \mathrm{in}\) \\ \(19.95 / 19.74 / 19.95\ \mathrm{mm}\) \\
+Wall thickness & \(0.0604\ \mathrm{in}\) \\ \(1.534\ \mathrm{mm}\) \\
+Web openings & \(0.677 / 0.631 / 0.677\) \\
+Governing case & Load Case 2 at \(x=5.0\ \mathrm{in}\) \\ \(x=127.0\ \mathrm{mm}\) \\
+Minimum FoS & \(1.863\) \\
+Maximum deflection & \(0.09424\ \mathrm{in}\) \\ \(2.394\ \mathrm{mm}\) \\
+\bottomrule
+\end{tabularx}
+
+\vspace{0.5em}
+\begin{tabularx}{\textwidth}{@{}p{0.22\textwidth}Y@{}}
+\toprule
+File & Link \\
+\midrule
+Package folder & \runlink{archive/deprecated_assets/relevant_design_packages/optimization_revised_symmetric_balanced}{Open package folder} \\
+STL & \runlink{archive/deprecated_assets/relevant_design_packages/optimization_revised_symmetric_balanced/optimization_revised_symmetric_balanced.stl}{Open STL} \\
+Best design JSON & \runlink{archive/deprecated_assets/relevant_design_packages/optimization_revised_symmetric_balanced/best_design.json}{Open JSON} \\
+Report & \runlink{archive/deprecated_assets/relevant_design_packages/optimization_revised_symmetric_balanced/optimization_report.md}{Open report} \\
+\bottomrule
+\end{tabularx}
+\normalsize
+
+\section*{Notes On Scope}
+
+\begin{itemize}
+  \item The corrected design is the one to cite in the final report.
+  \item The archived designs are still worth printing because they cover
+  different geometry strategies: open-web asymmetric, clean symmetric, and
+  aggressive lightweight variants.
+  \item I intentionally did not include archived designs such as
+  \designid{optimization_v2_E} or \designid{optimization_v2_F} in the main
+  print queue because their stored load cases do not match the current Team 6
+  loading used by the active corrected workflow.
+\end{itemize}
+
+\end{document}
