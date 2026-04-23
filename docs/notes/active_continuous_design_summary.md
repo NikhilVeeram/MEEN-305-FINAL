@@ -1,95 +1,63 @@
 # Active Continuous Design Summary
 
-## What I Changed
+This summary now distinguishes between the older continuous design family and
+the corrected `9 in` beam workflow.
 
-This revision follows the project handout more closely:
+## Correction Applied
 
-- continuous closed tube only
-- no weight-reducing holes or web cutouts
-- symmetric left/right geometry
-- objective includes a direct uniformity term so the beam is pushed toward a
-  nearly constant stress / FoS profile over the meaningful loaded region
-- final size is still reduced until the governing FoS stays just above `1.5`
+The project handout requires:
 
-Implementation changes:
+- total beam length: `9.0 in`
+- support span: `8.0 in`
+- support A at `x = 0.5 in`
+- support B at `x = 8.5 in`
 
-- `uniformity_weight`
-- `uniformity_case = load1 | load2 | all`
-- `mirror_profile`
-- zero-opening runs using `--min-web-opening-ratio 0 --max-web-opening-ratio 0`
+Earlier repo work kept the `8 in` support span but often treated it as the full
+beam length in the analysis and generated assets. The corrected workflow fixes
+that mismatch across the solver, optimizer, reports, and exports.
 
-## Important Note About Edge FoS
+## Current Corrected Candidate
 
-The project suggestion to minimize the standard deviation of stress is good, and
-that is now part of the search objective.
+The current corrected active run is:
 
-However, exact `FoS = 1.5` all the way to the supports is not physically
-possible for a simply supported beam under point loading, because the bending
-moment goes to zero at the supports. That makes the stress collapse there and
-the FoS rise sharply.
+- [continuous_uniform_both_load_cases_9in_corrected](/c:/Users/nikhil/Documents/GitHub/MEEN-305-FINAL/designs/active_runs/continuous_uniform_both_load_cases_9in_corrected)
 
-To match the intent of the instructions, I optimized uniformity over the
-meaningful loaded region rather than forcing the mathematically impossible edge
-behavior. The optimizer uses a stress floor ratio of `0.35` so it focuses on
-the beam regions that are actually carrying significant bending.
+Key corrected metrics:
 
-## New Continuous Candidates
+- Weight: `0.04079 lbf`
+- Governing minimum FoS: `1.503`
+- Governing case: `Load Case 2`
+- Governing location: `x = 5.500 in`
+- Maximum deflection: `0.16121 in`
 
-| Design | Optimization target | Weight (lbf) | Min FoS | Max deflection (in) | Notes |
-| --- | --- | ---: | ---: | ---: | --- |
-| `continuous_uniform_load_case_1` | Make Load Case 1 as uniform as possible while satisfying both cases | 0.04212 | 1.601 | 0.12094 | Closed, continuous, symmetric tube; most conservative of the three. |
-| `continuous_uniform_load_case_2` | Make Load Case 2 as uniform as possible while satisfying both cases | 0.03568 | 1.543 | 0.12117 | Lightest of the new continuous family. |
-| `continuous_uniform_both_load_cases` | Balance both load cases together | 0.03752 | 1.526 | 0.12629 | Best compromise if you want one balanced continuous design. |
+Geometry snapshot:
 
-## Geometry Snapshots
-
-### `continuous_uniform_load_case_1`
-
-- widths: `0.690 / 0.397 / 0.690 in`
-- heights: `0.350 / 0.350 / 0.350 in`
+- widths: `0.521 / 0.294 / 0.521 in`
+- heights: `0.659 / 0.713 / 0.659 in`
 - openings: `0 / 0 / 0`
+- wall thickness: `0.051 in`
 
-### `continuous_uniform_load_case_2`
+## Why This Run Matters
 
-- widths: `0.541 / 0.413 / 0.541 in`
-- heights: `0.577 / 0.362 / 0.577 in`
-- openings: `0 / 0 / 0`
+- It satisfies the corrected geometry description from the project.
+- It keeps the beam continuous, closed, and symmetric.
+- It uses a strong excess-FoS penalty plus a uniformity objective so the
+  useful-region FoS profile is flatter and the governing value is pushed down
+  near the `1.5` target.
+- The FoS plot is still expected to rise near unloaded ends and supports,
+  because a simply supported beam cannot physically maintain constant FoS all
+  the way into zero-moment regions.
 
-### `continuous_uniform_both_load_cases`
+## Reference Notes
 
-- widths: `0.424 / 0.433 / 0.424 in`
-- heights: `0.392 / 0.350 / 0.392 in`
-- openings: `0 / 0 / 0`
+- Audit note: [beam_length_support_correction_audit.md](/c:/Users/nikhil/Documents/GitHub/MEEN-305-FINAL/docs/notes/beam_length_support_correction_audit.md)
+- Selection note: [current_design_selection.md](/c:/Users/nikhil/Documents/GitHub/MEEN-305-FINAL/docs/notes/current_design_selection.md)
 
-## Which One Is Best
+## Older Continuous Candidates
 
-If the priority is lowest weight among the new continuous symmetric designs,
-choose `continuous_uniform_load_case_2`.
+The older run folders below are still in the repo for comparison, but they are
+pre-correction outputs:
 
-If the priority is best compromise across both load directions, choose
-`continuous_uniform_both_load_cases`.
-
-## Packaged Deliverables
-
-- [continuous_uniform_load_case_1 package](c:/Users/nikhi/Documents/GitHub/MEEN-305-FINAL/designs/packages/continuous_design_deliverables/continuous_uniform_load_case_1)
-- [continuous_uniform_load_case_2 package](c:/Users/nikhi/Documents/GitHub/MEEN-305-FINAL/designs/packages/continuous_design_deliverables/continuous_uniform_load_case_2)
-- [continuous_uniform_both_load_cases package](c:/Users/nikhi/Documents/GitHub/MEEN-305-FINAL/designs/packages/continuous_design_deliverables/continuous_uniform_both_load_cases)
-
-Each package includes:
-
-- `best_design.json`
-- `optimization_report.md`
-- `optimization_report.tex`
-- `beam_parameter_map.png`
-- `best_design/*.png`
-- preview PNG
-- `.obj`
-- `.stl`
-- `.dxf`
-
-## STEP Status
-
-DXF exports were generated successfully.
-
-STEP files were still not generated because the repo does not include a STEP
-export-capable CAD kernel or library.
+- [continuous_uniform_load_case_1](/c:/Users/nikhil/Documents/GitHub/MEEN-305-FINAL/designs/active_runs/continuous_uniform_load_case_1)
+- [continuous_uniform_load_case_2](/c:/Users/nikhil/Documents/GitHub/MEEN-305-FINAL/designs/active_runs/continuous_uniform_load_case_2)
+- [continuous_uniform_both_load_cases](/c:/Users/nikhil/Documents/GitHub/MEEN-305-FINAL/designs/active_runs/continuous_uniform_both_load_cases)

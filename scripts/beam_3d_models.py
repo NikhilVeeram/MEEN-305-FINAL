@@ -28,7 +28,17 @@ class DiscoveredDesign:
 
 def load_geometry_from_json(json_path: Path) -> TaperedRectangularTube:
     payload = json.loads(json_path.read_text(encoding="utf-8"))
-    return TaperedRectangularTube(**payload["geometry"])
+    geometry_payload = dict(payload["geometry"])
+    total_length_in = float(geometry_payload["total_length_in"])
+    span_in = float(geometry_payload["span_in"])
+    support_a_x_in = geometry_payload.get("support_a_x_in")
+    support_b_x_in = geometry_payload.get("support_b_x_in")
+    if support_a_x_in is None or support_b_x_in is None:
+        support_a_x_in = 0.5 * (total_length_in - span_in)
+        support_b_x_in = support_a_x_in + span_in
+    geometry_payload["support_a_x_in"] = support_a_x_in
+    geometry_payload["support_b_x_in"] = support_b_x_in
+    return TaperedRectangularTube(**geometry_payload)
 
 
 def rectangle_profile(z_min: float, z_max: float, y_min: float, y_max: float) -> list[tuple[float, float]]:
@@ -153,7 +163,11 @@ def add_lofted_rectangle_mesh(
 
 
 def build_beam_mesh(geometry: TaperedRectangularTube, stations: int) -> Mesh:
-    x_in = build_x_grid(geometry.span_in, stations=stations)
+    x_in = build_x_grid(
+        geometry.total_length_in,
+        stations=stations,
+        critical_positions_in=[geometry.support_a_x_in, geometry.support_b_x_in],
+    )
     mesh = Mesh(vertices=[], faces=[])
     for profiles in component_profiles(geometry, x_in).values():
         add_lofted_rectangle_mesh(mesh, x_in, profiles)
@@ -194,7 +208,11 @@ def write_obj(mesh: Mesh, output_path: Path) -> None:
 
 
 def write_sketch_dxf(geometry: TaperedRectangularTube, output_path: Path, samples: int = 81) -> None:
-    x_in = build_x_grid(geometry.span_in, stations=samples)
+    x_in = build_x_grid(
+        geometry.total_length_in,
+        stations=samples,
+        critical_positions_in=[geometry.support_a_x_in, geometry.support_b_x_in],
+    )
     front = geometry.height_profile(x_in)
     top = geometry.width_profile(x_in)
     clear_height = geometry.inner_height_profile(x_in)
@@ -389,7 +407,7 @@ def discover_designs(search_roots: list[Path], include_sample_geometry: bool) ->
 
         for json_path in sorted(root.rglob("best_design.json")):
             design_name = json_path.parent.name
-            if json_path.parent.parent.name:
+            if json_path.parent.name == "best_design" and json_path.parent.parent.name:
                 design_name = json_path.parent.parent.name
             designs.append(
                 DiscoveredDesign(
@@ -524,9 +542,7 @@ def main() -> None:
     args = parser.parse_args()
 
     search_roots = [Path(path) for path in args.search_root] if args.search_root else [
-        Path("designs/active_runs/continuous_uniform_load_case_1"),
-        Path("designs/active_runs/continuous_uniform_load_case_2"),
-        Path("designs/active_runs/continuous_uniform_both_load_cases"),
+        Path("designs/active_runs"),
     ]
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)

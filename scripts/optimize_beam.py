@@ -23,6 +23,15 @@ from beam_solver import (
 )
 
 
+def centered_support_positions(total_length_in: float, span_in: float) -> tuple[float, float]:
+    overhang_in = 0.5 * (total_length_in - span_in)
+    return overhang_in, overhang_in + span_in
+
+
+def global_load_x_in(geometry: TaperedRectangularTube, location_from_support_a_in: float) -> float:
+    return geometry.support_a_x_in + location_from_support_a_in
+
+
 @dataclass(frozen=True)
 class ConstraintConfig:
     min_factor_of_safety: float
@@ -175,6 +184,8 @@ def build_geometry_from_variables(
     variables: dict[str, float],
     span_in: float,
     total_length_in: float,
+    support_a_x_in: float,
+    support_b_x_in: float,
     mirror_profile: bool = False,
 ) -> TaperedRectangularTube:
     right_width_in = variables["left_width_in"] if mirror_profile else variables["right_width_in"]
@@ -187,6 +198,8 @@ def build_geometry_from_variables(
     return TaperedRectangularTube(
         span_in=span_in,
         total_length_in=total_length_in,
+        support_a_x_in=support_a_x_in,
+        support_b_x_in=support_b_x_in,
         left_width_in=variables["left_width_in"],
         mid_width_in=variables["mid_width_in"],
         right_width_in=right_width_in,
@@ -250,9 +263,13 @@ def assess_uniformity(
     squared_error_terms: list[np.ndarray] = []
     stress_floor = stress_floor_ratio * target_stress_psi
     for result in selected_results:
-        significant_mask = result.von_mises_psi >= stress_floor
+        supported_mask = (
+            (result.x_in >= result.support_a_x_in)
+            & (result.x_in <= result.support_b_x_in)
+        )
+        significant_mask = supported_mask & (result.von_mises_psi >= stress_floor)
         if not np.any(significant_mask):
-            significant_mask = result.von_mises_psi > 0.0
+            significant_mask = supported_mask & (result.von_mises_psi > 0.0)
         if not np.any(significant_mask):
             continue
         normalized_error = (
@@ -404,6 +421,15 @@ def evaluate_design(
     load_case_summaries: list[LoadCaseSummary] = []
     analysis_results: list[Any] = []
     weight_lbf = 0.0
+    evaluation_x_in = build_x_grid(
+        geometry.total_length_in,
+        stations=stations,
+        critical_positions_in=[
+            geometry.support_a_x_in,
+            geometry.support_b_x_in,
+            *[global_load_x_in(geometry, load_case.location_in) for load_case in load_cases],
+        ],
+    )
 
     for load_case in load_cases:
         result = analyze_load_case(
@@ -411,6 +437,7 @@ def evaluate_design(
             material=material,
             load_case=load_case,
             stations=stations,
+            x_grid_in=evaluation_x_in,
         )
         analysis_results.append(result)
         load_case_summaries.append(summarize_load_case(result, load_case))
@@ -611,15 +638,19 @@ def export_design_study_csv(evaluations: list[DesignEvaluation], csv_path: Path)
             writer.writerow(row)
 
 
-def load_case_table_markdown(load_case_summaries: list[LoadCaseSummary]) -> str:
+def load_case_table_markdown(
+    geometry: TaperedRectangularTube,
+    load_case_summaries: list[LoadCaseSummary],
+) -> str:
     lines = [
-        "| Load Case | Orientation | Load [lbf] | Location [in] | Min FoS | FoS x [in] | Max Deflection [in] | Max von Mises [psi] |",
-        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |",
+        "| Load Case | Orientation | Load [lbf] | From Support A [in] | Global x [in] | Min FoS | FoS x [in] | Max Deflection [in] | Max von Mises [psi] |",
+        "| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |",
     ]
     for summary in load_case_summaries:
         lines.append(
             f"| {summary.name} | {summary.orientation} | {summary.load_lbf:.3f} | "
-            f"{summary.location_in:.3f} | {summary.min_factor_of_safety:.3f} | {summary.min_factor_of_safety_x_in:.3f} | "
+            f"{summary.location_in:.3f} | {global_load_x_in(geometry, summary.location_in):.3f} | "
+            f"{summary.min_factor_of_safety:.3f} | {summary.min_factor_of_safety_x_in:.3f} | "
             f"{summary.max_deflection_in:.5f} | {summary.max_von_mises_psi:.1f} |"
         )
     return "\n".join(lines)
@@ -652,7 +683,8 @@ def load_case_substitution_markdown(
         f"{material.elastic_modulus_psi:.1f} \\times {material.orientation_factor:.3f} \\times {material.infill_factor:.3f} = {material.effective_modulus_psi:.1f}\\ \\text{{psi}}$",
         f"- $\\sigma_{{allow,eff}} = \\sigma_{{allow}} \\times k_{{orientation}} \\times k_{{infill}} = "
         f"{material.allowable_stress_psi:.1f} \\times {material.orientation_factor:.3f} \\times {material.infill_factor:.3f} = {material.effective_allowable_stress_psi:.1f}\\ \\text{{psi}}$",
-        f"- $W = \\rho \\int_0^L A(x)\\,dx = {weight_lbf:.5f}\\ \\text{{lbf}}$",
+        f"- Support positions: $x_A = {geometry.support_a_x_in:.3f}\\ \\text{{in}}$, $x_B = {geometry.support_b_x_in:.3f}\\ \\text{{in}}$",
+        f"- $W = \\rho \\int_0^{{L_{{total}}}} A(x)\\,dx = {weight_lbf:.5f}\\ \\text{{lbf}}$",
         "- Global governing factor of safety is the minimum value over all beam stations and over both load cases.",
         "",
     ]
@@ -666,6 +698,7 @@ def load_case_substitution_markdown(
                 f"### {summary.name}",
                 "",
                 f"- Active bending orientation: {summary.orientation} ({active_axis})",
+                f"- Load position from support A: $a = {summary.location_in:.3f}\\ \\text{{in}}$ (global $x = {global_load_x_in(geometry, summary.location_in):.3f}\\ \\text{{in}}$)",
                 f"- $R_A = P(L-a)/L = {summary.load_lbf:.3f}({geometry.span_in:.3f}-{summary.location_in:.3f})/{geometry.span_in:.3f} = {reaction_a:.3f}\\ \\text{{lbf}}$",
                 f"- $R_B = Pa/L = {summary.load_lbf:.3f}({summary.location_in:.3f})/{geometry.span_in:.3f} = {reaction_b:.3f}\\ \\text{{lbf}}$",
                 f"- $FoS_{{min}} = \\sigma_{{allow,eff}}/\\sigma_{{vm,max}} = {material.effective_allowable_stress_psi:.1f}/{summary.max_von_mises_psi:.1f} = {summary.min_factor_of_safety:.3f}$",
@@ -697,7 +730,10 @@ def load_case_substitution_latex(
         + rf" \cdot {material.orientation_factor:.3f} \cdot {material.infill_factor:.3f} = {material.effective_allowable_stress_psi:.1f}\ \mathrm{{psi}}"
         + r"\]",
         r"\["
-        + rf"W = \rho \int_0^L A(x)\,dx = {weight_lbf:.5f}\ \mathrm{{lbf}}"
+        + rf"x_A = {geometry.support_a_x_in:.3f}\ \mathrm{{in}}, \qquad x_B = {geometry.support_b_x_in:.3f}\ \mathrm{{in}}"
+        + r"\]",
+        r"\["
+        + rf"W = \rho \int_0^{{L_{{total}}}} A(x)\,dx = {weight_lbf:.5f}\ \mathrm{{lbf}}"
         + r"\]",
         r"Global governing factor of safety is the minimum value over all beam stations and over both load cases.",
     ]
@@ -710,6 +746,9 @@ def load_case_substitution_latex(
             [
                 rf"\subsection*{{{latex_escape(summary.name)}}}",
                 rf"Active bending orientation: {latex_escape(summary.orientation)} ({latex_escape(active_axis)}).",
+                r"\["
+                + rf"a = {summary.location_in:.3f}\ \mathrm{{in}} \text{{ from support A}}, \qquad x_{{load}} = {global_load_x_in(geometry, summary.location_in):.3f}\ \mathrm{{in}}"
+                + r"\]",
                 r"\["
                 + rf"R_A = \frac{{P(L-a)}}{{L}} = \frac{{{summary.load_lbf:.3f}({geometry.span_in:.3f}-{summary.location_in:.3f})}}{{{geometry.span_in:.3f}}} = {reaction_a:.3f}\ \mathrm{{lbf}}"
                 + r"\]",
@@ -783,8 +822,10 @@ def write_markdown_report(
         "",
         "| Variable | Value |",
         "| --- | ---: |",
-        f"| $L$ [in] | {geometry.span_in:.3f} |",
-        f"| $L_{{total}}$ [in] | {geometry.total_length_in:.3f} |",
+        f"| Support span $L$ [in] | {geometry.span_in:.3f} |",
+        f"| Total beam length $L_{{total}}$ [in] | {geometry.total_length_in:.3f} |",
+        f"| Support A $x_A$ [in] | {geometry.support_a_x_in:.3f} |",
+        f"| Support B $x_B$ [in] | {geometry.support_b_x_in:.3f} |",
         f"| $b_L$ [in] | {geometry.left_width_in:.3f} |",
         f"| $b_M$ [in] | {geometry.mid_width_in:.3f} |",
         f"| $b_R$ [in] | {geometry.right_width_in:.3f} |",
@@ -800,7 +841,7 @@ def write_markdown_report(
         "",
         "### Best-Design Load-Case Metrics",
         "",
-        load_case_table_markdown(best_evaluation.load_case_summaries),
+        load_case_table_markdown(geometry, best_evaluation.load_case_summaries),
         "",
         "## Beam Structure and Parameters",
         "",
@@ -810,11 +851,13 @@ def write_markdown_report(
         "",
         "## General Equations",
         "",
+        f"Profiles below are parameterized over the total beam length $0 \\le x \\le {geometry.total_length_in:.3f}$ in, while load positions $a$ remain measured from support A.",
+        "",
         "### Geometry",
         "",
-        f"- $${piecewise_profile_latex('b', geometry.left_width_in, geometry.mid_width_in, geometry.right_width_in, geometry.span_in)}$$",
-        f"- $${piecewise_profile_latex('h', geometry.left_height_in, geometry.mid_height_in, geometry.right_height_in, geometry.span_in)}$$",
-        f"- $${piecewise_profile_latex('r', geometry.left_web_opening_ratio, geometry.mid_web_opening_ratio, geometry.right_web_opening_ratio, geometry.span_in)}$$",
+        f"- $${piecewise_profile_latex('b', geometry.left_width_in, geometry.mid_width_in, geometry.right_width_in, geometry.total_length_in)}$$",
+        f"- $${piecewise_profile_latex('h', geometry.left_height_in, geometry.mid_height_in, geometry.right_height_in, geometry.total_length_in)}$$",
+        f"- $${piecewise_profile_latex('r', geometry.left_web_opening_ratio, geometry.mid_web_opening_ratio, geometry.right_web_opening_ratio, geometry.total_length_in)}$$",
         "- Hollow tube area with lightening openings: $A(x)=2b(x)t + [1-r(x)]2t[h(x)-2t]$",
         "- Upright bending second moment: $I(x)=\\frac{b(x)h(x)^3-[b(x)-2t][h(x)-2t]^3}{12}-2\\frac{t[r(x)(h(x)-2t)]^3}{12}$",
         "- Side-rotated bending second moment: $I_{side}(x)=\\frac{h(x)b(x)^3-[h(x)-2t][b(x)-2t]^3}{12}-2\\frac{t[r(x)(b(x)-2t)]^3}{12}$",
@@ -832,7 +875,7 @@ def write_markdown_report(
         "### Deflection and Objective",
         "",
         "- Euler-Bernoulli relation: $E_{eff}I(x)v''(x)=M(x)$",
-        "- Weight objective: $W=\\rho\\int_0^L A(x)\\,dx$",
+        "- Weight objective: $W=\\rho\\int_0^{L_{total}} A(x)\\,dx$",
         "- Search objective used here: minimize weight while enforcing factor-of-safety and optional deflection constraints",
         "",
         load_case_substitution_markdown(
@@ -881,7 +924,7 @@ def write_latex_report(
         [
             (
                 f"{latex_escape(summary.name)} & {latex_escape(summary.orientation)} & "
-                f"{summary.load_lbf:.3f} & {summary.location_in:.3f} & "
+                f"{summary.load_lbf:.3f} & {summary.location_in:.3f} & {global_load_x_in(geometry, summary.location_in):.3f} & "
                 f"{summary.min_factor_of_safety:.3f} & {summary.min_factor_of_safety_x_in:.3f} & {summary.max_deflection_in:.5f} & "
                 f"{summary.max_von_mises_psi:.1f} \\\\"
             )
@@ -932,8 +975,10 @@ def write_latex_report(
 \toprule
 Variable & Value \\
 \midrule
-$L$ [in] & {geometry.span_in:.3f} \\
-$L_{{total}}$ [in] & {geometry.total_length_in:.3f} \\
+Support span $L$ [in] & {geometry.span_in:.3f} \\
+Total beam length $L_{{total}}$ [in] & {geometry.total_length_in:.3f} \\
+$x_A$ [in] & {geometry.support_a_x_in:.3f} \\
+$x_B$ [in] & {geometry.support_b_x_in:.3f} \\
 $b_L$ [in] & {geometry.left_width_in:.3f} \\
 $b_M$ [in] & {geometry.mid_width_in:.3f} \\
 $b_R$ [in] & {geometry.right_width_in:.3f} \\
@@ -963,9 +1008,9 @@ $r_R$ [-] & {geometry.right_web_opening_ratio:.3f} \\
 
 \subsection*{{Best-Design Load-Case Metrics}}
 \begin{{center}}
-\begin{{tabular}}{{llllllll}}
+\begin{{tabular}}{{lllllllll}}
 \toprule
-Load Case & Orientation & Load [lbf] & Location [in] & Min FoS & FoS x [in] & Max Defl. [in] & Max $\sigma_{{vm}}$ [psi] \\
+Load Case & Orientation & Load [lbf] & From A [in] & Global $x$ [in] & Min FoS & FoS x [in] & Max Defl. [in] & Max $\sigma_{{vm}}$ [psi] \\
 \midrule
 {load_case_rows}
 \bottomrule
@@ -973,15 +1018,16 @@ Load Case & Orientation & Load [lbf] & Location [in] & Min FoS & FoS x [in] & Ma
 \end{{center}}
 
 \section*{{General Equations}}
+Profiles below are parameterized over the total beam length $0 \le x \le {geometry.total_length_in:.3f}$ in, while $a$ remains the load location measured from support A.
 \subsection*{{Geometry}}
 \[
-{piecewise_profile_latex('b', geometry.left_width_in, geometry.mid_width_in, geometry.right_width_in, geometry.span_in)}
+{piecewise_profile_latex('b', geometry.left_width_in, geometry.mid_width_in, geometry.right_width_in, geometry.total_length_in)}
 \]
 \[
-{piecewise_profile_latex('h', geometry.left_height_in, geometry.mid_height_in, geometry.right_height_in, geometry.span_in)}
+{piecewise_profile_latex('h', geometry.left_height_in, geometry.mid_height_in, geometry.right_height_in, geometry.total_length_in)}
 \]
 \[
-{piecewise_profile_latex('r', geometry.left_web_opening_ratio, geometry.mid_web_opening_ratio, geometry.right_web_opening_ratio, geometry.span_in)}
+{piecewise_profile_latex('r', geometry.left_web_opening_ratio, geometry.mid_web_opening_ratio, geometry.right_web_opening_ratio, geometry.total_length_in)}
 \]
 \[
 A(x)=2b(x)t+[1-r(x)]2t[h(x)-2t]
@@ -1016,7 +1062,7 @@ FoS(x)=\frac{{\sigma_{{allow,eff}}}}{{\sigma_{{vm}}(x)}}
 E_{{eff}}I(x)v''(x)=M(x)
 \]
 \[
-W=\rho\int_0^L A(x)\,dx
+W=\rho\int_0^{{L_{{total}}}} A(x)\,dx
 \]
 
 {load_case_substitution_latex(
@@ -1073,8 +1119,12 @@ def plot_parameter_map(
     load_cases: list[Any],
 ) -> None:
     fig, axes = plt.subplots(2, 1, figsize=(10, 7))
-    x_positions = np.array([0.0, geometry.span_in / 2.0, geometry.span_in])
-    x_in = build_x_grid(geometry.span_in, stations=401)
+    x_positions = np.array([0.0, geometry.total_length_in / 2.0, geometry.total_length_in])
+    x_in = build_x_grid(
+        geometry.total_length_in,
+        stations=401,
+        critical_positions_in=[geometry.support_a_x_in, geometry.support_b_x_in],
+    )
 
     front = geometry.height_profile(x_in)
     top = geometry.width_profile(x_in)
@@ -1099,6 +1149,8 @@ def plot_parameter_map(
     axes[0].set_xlabel("x [in]")
     axes[0].set_ylabel("y [in]")
     axes[0].grid(True, alpha=0.3)
+    axes[0].axvline(geometry.support_a_x_in, color="tab:red", linestyle="--", linewidth=1.0)
+    axes[0].axvline(geometry.support_b_x_in, color="tab:red", linestyle="--", linewidth=1.0)
 
     axes[1].fill_between(x_in, -top / 2.0, top / 2.0, color="#f3ddc5", alpha=0.85)
     axes[1].plot(x_in, top / 2.0, color="tab:orange", linewidth=2.0)
@@ -1118,25 +1170,28 @@ def plot_parameter_map(
         )
     axes[1].annotate(
         rf"$t = {geometry.wall_thickness_in:.3f}$ in",
-        xy=(geometry.span_in * 0.85, geometry.right_width_in / 2.0),
-        xytext=(geometry.span_in * 0.62, geometry.right_width_in / 2.0 + 0.35),
+        xy=(geometry.total_length_in * 0.85, geometry.right_width_in / 2.0),
+        xytext=(geometry.total_length_in * 0.62, geometry.right_width_in / 2.0 + 0.35),
         arrowprops={"arrowstyle": "->", "linewidth": 1.0},
         fontsize=9,
     )
     axes[1].text(
-        geometry.span_in * 0.18,
+        geometry.total_length_in * 0.18,
         -0.72 * np.max(top),
         rf"$r_L,r_M,r_R = ({geometry.left_web_opening_ratio:.2f}, {geometry.mid_web_opening_ratio:.2f}, {geometry.right_web_opening_ratio:.2f})$",
         fontsize=9,
         bbox={"boxstyle": "round,pad=0.2", "facecolor": "white", "alpha": 0.75, "edgecolor": "0.7"},
     )
+    axes[1].axvline(geometry.support_a_x_in, color="tab:red", linestyle="--", linewidth=1.0)
+    axes[1].axvline(geometry.support_b_x_in, color="tab:red", linestyle="--", linewidth=1.0)
 
     for load_case in load_cases:
-        axes[1].axvline(load_case.location_in, color="tab:red", linestyle="--", linewidth=1.0)
+        load_global = global_load_x_in(geometry, load_case.location_in)
+        axes[1].axvline(load_global, color="tab:purple", linestyle=":", linewidth=1.0)
         axes[1].text(
-            load_case.location_in,
+            load_global,
             0.0,
-            f"{load_case.name}\nP={load_case.load_lbf:.2f} lbf",
+            f"{load_case.name}\nP={load_case.load_lbf:.2f} lbf\nx={load_global:.2f}",
             ha="center",
             va="center",
             fontsize=8,
@@ -1163,7 +1218,14 @@ def save_best_design_plots(
     best_plot_dir = output_dir / "best_design"
     best_plot_dir.mkdir(parents=True, exist_ok=True)
 
-    x_in = build_x_grid(best_evaluation.geometry.span_in, stations=stations)
+    x_in = build_x_grid(
+        best_evaluation.geometry.total_length_in,
+        stations=stations,
+        critical_positions_in=[
+            best_evaluation.geometry.support_a_x_in,
+            best_evaluation.geometry.support_b_x_in,
+        ],
+    )
     plot_geometry(best_evaluation.geometry, best_plot_dir, x_in)
 
     for load_case in load_cases:
@@ -1182,6 +1244,8 @@ def run_search(
     bounds: DesignVariableBounds,
     span_in: float,
     total_length_in: float,
+    support_a_x_in: float,
+    support_b_x_in: float,
     material: Material,
     load_cases: list[Any],
     constraint_config: ConstraintConfig,
@@ -1198,6 +1262,8 @@ def run_search(
             sample,
             span_in,
             total_length_in,
+            support_a_x_in,
+            support_b_x_in,
             mirror_profile=search_config.mirror_profile,
         )
         evaluations.append(
@@ -1230,6 +1296,8 @@ def run_search(
                 sample,
                 span_in,
                 total_length_in,
+                support_a_x_in,
+                support_b_x_in,
                 mirror_profile=search_config.mirror_profile,
             )
             evaluations.append(
@@ -1290,6 +1358,8 @@ def main() -> None:
     parser.add_argument("--output-dir", default="designs/active_runs/optimization_run")
     parser.add_argument("--span-in", type=float, default=8.0)
     parser.add_argument("--total-length-in", type=float, default=9.0)
+    parser.add_argument("--support-a-x-in", type=float, default=0.5)
+    parser.add_argument("--support-b-x-in", type=float, default=8.5)
     parser.add_argument("--stations", type=int, default=801)
 
     parser.add_argument("--min-width-in", type=float, default=0.35)
@@ -1343,6 +1413,8 @@ def main() -> None:
     parser.add_argument("--mirror-profile", action="store_true")
     parser.add_argument("--seed", type=int, default=305)
     args = parser.parse_args()
+    if not np.isclose(args.support_b_x_in - args.support_a_x_in, args.span_in, atol=1.0e-9):
+        parser.error("Support spacing must equal --span-in.")
 
     base = KNOWN_MATERIALS[args.material]
     material = Material(
@@ -1394,6 +1466,8 @@ def main() -> None:
         bounds=bounds,
         span_in=args.span_in,
         total_length_in=args.total_length_in,
+        support_a_x_in=args.support_a_x_in,
+        support_b_x_in=args.support_b_x_in,
         material=material,
         load_cases=load_cases,
         constraint_config=constraint_config,

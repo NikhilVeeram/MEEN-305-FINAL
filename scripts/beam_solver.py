@@ -81,6 +81,12 @@ KNOWN_MATERIALS: dict[str, "Material"] = {
 }
 
 
+def integrate_trapezoid(y: np.ndarray, x: np.ndarray) -> float:
+    if hasattr(np, "trapezoid"):
+        return float(np.trapezoid(y, x))
+    return float(np.trapz(y, x))
+
+
 @dataclass(frozen=True)
 class LoadCase:
     name: str
@@ -101,6 +107,8 @@ _MIN_WEB_LIGAMENT_IN: float = 0.060  # absolute minimum residual web ligament fo
 class TaperedRectangularTube:
     span_in: float
     total_length_in: float
+    support_a_x_in: float
+    support_b_x_in: float
     left_width_in: float
     mid_width_in: float
     right_width_in: float
@@ -115,6 +123,12 @@ class TaperedRectangularTube:
     def validate(self) -> None:
         if self.total_length_in < self.span_in:
             raise ValueError("Total length must be at least as large as the support span.")
+
+        if not (0.0 <= self.support_a_x_in < self.support_b_x_in <= self.total_length_in):
+            raise ValueError("Support locations must lie within the total beam length.")
+
+        if not np.isclose(self.support_b_x_in - self.support_a_x_in, self.span_in, atol=1.0e-9):
+            raise ValueError("Support spacing must match the analysis span.")
 
         if min(
             self.left_width_in,
@@ -200,7 +214,7 @@ class TaperedRectangularTube:
     ) -> np.ndarray:
         return np.interp(
             np.asarray(x, dtype=float),
-            [0.0, self.span_in / 2.0, self.span_in],
+            [0.0, self.total_length_in / 2.0, self.total_length_in],
             [left_value, mid_value, right_value],
         )
 
@@ -299,6 +313,9 @@ class TaperedRectangularTube:
 class AnalysisResult:
     x_in: np.ndarray
     orientation: str
+    support_a_x_in: float
+    support_b_x_in: float
+    load_global_x_in: float
     reaction_a_lbf: float
     reaction_b_lbf: float
     shear_lbf: np.ndarray
@@ -321,8 +338,19 @@ class AnalysisResult:
     max_deflection_x_in: float
 
 
-def build_x_grid(span_in: float, stations: int = 801) -> np.ndarray:
-    return np.linspace(0.0, span_in, stations)
+def build_x_grid(length_in: float, stations: int = 801, critical_positions_in: list[float] | None = None) -> np.ndarray:
+    x_in = np.linspace(0.0, length_in, stations)
+    if critical_positions_in is None:
+        return x_in
+
+    critical = [
+        float(position)
+        for position in critical_positions_in
+        if 0.0 <= float(position) <= length_in
+    ]
+    if not critical:
+        return x_in
+    return np.unique(np.concatenate([x_in, np.asarray(critical, dtype=float)]))
 
 
 def solve_reactions(span_in: float, load_lbf: float, location_in: float) -> tuple[float, float]:
@@ -333,38 +361,76 @@ def solve_reactions(span_in: float, load_lbf: float, location_in: float) -> tupl
 
 def shear_and_moment(
     x_in: np.ndarray,
+    support_a_x_in: float,
+    support_b_x_in: float,
     span_in: float,
     load_lbf: float,
     location_in: float,
 ) -> tuple[float, float, np.ndarray, np.ndarray]:
     reaction_a, reaction_b = solve_reactions(span_in, load_lbf, location_in)
-    shear = np.where(x_in < location_in, reaction_a, reaction_a - load_lbf)
-    moment = np.where(
-        x_in < location_in,
-        reaction_a * x_in,
-        reaction_a * x_in - load_lbf * (x_in - location_in),
+    load_global_x_in = support_a_x_in + location_in
+    shear = np.zeros_like(x_in, dtype=float)
+    moment = np.zeros_like(x_in, dtype=float)
+
+    left_mask = (x_in >= support_a_x_in) & (x_in < load_global_x_in)
+    right_mask = (x_in >= load_global_x_in) & (x_in <= support_b_x_in)
+
+    shear[left_mask] = reaction_a
+    shear[right_mask] = reaction_a - load_lbf
+
+    moment[left_mask] = reaction_a * (x_in[left_mask] - support_a_x_in)
+    moment[right_mask] = (
+        reaction_a * (x_in[right_mask] - support_a_x_in)
+        - load_lbf * (x_in[right_mask] - load_global_x_in)
     )
     return reaction_a, reaction_b, shear, moment
 
 
 def integrate_deflection(
     x_in: np.ndarray,
+    support_a_x_in: float,
+    support_b_x_in: float,
     moment_lbf_in: np.ndarray,
     elastic_modulus_psi: float,
     second_moment_bending_in4: np.ndarray,
 ) -> tuple[np.ndarray, np.ndarray]:
-    dx = x_in[1] - x_in[0]
-    curvature = moment_lbf_in / (elastic_modulus_psi * second_moment_bending_in4)
+    supported_mask = (x_in >= support_a_x_in) & (x_in <= support_b_x_in)
+    supported_x = x_in[supported_mask]
+    supported_second_moment = second_moment_bending_in4[supported_mask]
+    supported_moment = moment_lbf_in[supported_mask]
+    supported_dx = np.diff(supported_x)
+
+    curvature = supported_moment / (elastic_modulus_psi * supported_second_moment)
 
     theta_raw = np.zeros_like(curvature)
-    theta_raw[1:] = np.cumsum(0.5 * (curvature[:-1] + curvature[1:]) * dx)
+    if supported_dx.size:
+        theta_raw[1:] = np.cumsum(0.5 * (curvature[:-1] + curvature[1:]) * supported_dx)
 
     deflection_raw = np.zeros_like(curvature)
-    deflection_raw[1:] = np.cumsum(0.5 * (theta_raw[:-1] + theta_raw[1:]) * dx)
+    if supported_dx.size:
+        deflection_raw[1:] = np.cumsum(0.5 * (theta_raw[:-1] + theta_raw[1:]) * supported_dx)
 
-    correction = deflection_raw[-1] / x_in[-1]
-    deflection = deflection_raw - correction * x_in
-    slope = np.gradient(deflection, dx)
+    supported_span = support_b_x_in - support_a_x_in
+    supported_relative_x = supported_x - support_a_x_in
+    correction = deflection_raw[-1] / supported_span
+    supported_deflection = deflection_raw - correction * supported_relative_x
+    supported_slope = np.gradient(supported_deflection, supported_x)
+
+    deflection = np.zeros_like(x_in)
+    slope = np.zeros_like(x_in)
+    deflection[supported_mask] = supported_deflection
+    slope[supported_mask] = supported_slope
+
+    left_mask = x_in < support_a_x_in
+    if np.any(left_mask):
+        slope[left_mask] = supported_slope[0]
+        deflection[left_mask] = supported_slope[0] * (x_in[left_mask] - support_a_x_in)
+
+    right_mask = x_in > support_b_x_in
+    if np.any(right_mask):
+        slope[right_mask] = supported_slope[-1]
+        deflection[right_mask] = supported_slope[-1] * (x_in[right_mask] - support_b_x_in)
+
     return slope, deflection
 
 
@@ -373,14 +439,26 @@ def analyze_load_case(
     material: Material,
     load_case: LoadCase,
     stations: int = 801,
+    x_grid_in: np.ndarray | None = None,
 ) -> AnalysisResult:
     geometry.validate()
     if not 0.0 < load_case.location_in < geometry.span_in:
         raise ValueError("Load location must lie strictly between the supports.")
 
-    x_in = build_x_grid(geometry.span_in, stations=stations)
+    load_global_x_in = geometry.support_a_x_in + load_case.location_in
+    x_in = (
+        np.asarray(x_grid_in, dtype=float)
+        if x_grid_in is not None
+        else build_x_grid(
+            geometry.total_length_in,
+            stations=stations,
+            critical_positions_in=[geometry.support_a_x_in, geometry.support_b_x_in, load_global_x_in],
+        )
+    )
     reaction_a, reaction_b, shear_lbf, moment_lbf_in = shear_and_moment(
         x_in=x_in,
+        support_a_x_in=geometry.support_a_x_in,
+        support_b_x_in=geometry.support_b_x_in,
         span_in=geometry.span_in,
         load_lbf=load_case.load_lbf,
         location_in=load_case.location_in,
@@ -405,6 +483,8 @@ def analyze_load_case(
 
     slope_rad, deflection_in = integrate_deflection(
         x_in=x_in,
+        support_a_x_in=geometry.support_a_x_in,
+        support_b_x_in=geometry.support_b_x_in,
         moment_lbf_in=moment_lbf_in,
         elastic_modulus_psi=material.effective_modulus_psi,
         second_moment_bending_in4=second_moment_bending_in4,
@@ -417,7 +497,7 @@ def analyze_load_case(
     # threshold commonly accepted for simply-supported beams.  Including it as a distributed
     # load would increase midspan stress by less than 0.4 %, which is negligible relative to
     # the FoS = 1.5 safety margin already built into the design.
-    volume_in3 = np.trapezoid(area_in2, x_in)
+    volume_in3 = integrate_trapezoid(area_in2, x_in)
     weight_lbf = volume_in3 * material.weight_density_lbf_per_in3
 
     min_fos_index = int(np.argmin(factor_of_safety))
@@ -427,6 +507,9 @@ def analyze_load_case(
     return AnalysisResult(
         x_in=x_in,
         orientation=load_case.orientation,
+        support_a_x_in=geometry.support_a_x_in,
+        support_b_x_in=geometry.support_b_x_in,
+        load_global_x_in=load_global_x_in,
         reaction_a_lbf=reaction_a,
         reaction_b_lbf=reaction_b,
         shear_lbf=shear_lbf,
@@ -481,7 +564,7 @@ def plot_outer_dimension_views(
     outer_height = geometry.height_profile(x_in)
     outer_width = geometry.width_profile(x_in)
     opening_ratio = geometry.web_opening_ratio_profile(x_in)
-    x_positions = [0.0, geometry.span_in / 2.0, geometry.span_in]
+    x_positions = [0.0, geometry.total_length_in / 2.0, geometry.total_length_in]
 
     fig, axes = plt.subplots(1, 3, figsize=(15, 4.8))
 
@@ -497,6 +580,8 @@ def plot_outer_dimension_views(
     axes[0].set_xlabel("x [in]")
     axes[0].set_ylabel("y [in]")
     axes[0].grid(True, alpha=0.3)
+    axes[0].axvline(geometry.support_a_x_in, color="tab:red", linestyle="--", linewidth=1.0, alpha=0.7)
+    axes[0].axvline(geometry.support_b_x_in, color="tab:red", linestyle="--", linewidth=1.0, alpha=0.7)
 
     axes[1].fill_between(x_in, -outer_width / 2.0, outer_width / 2.0, color="#f5d8b8", alpha=0.8)
     axes[1].plot(x_in, outer_width / 2.0, color="tab:orange", linewidth=2.0)
@@ -510,6 +595,8 @@ def plot_outer_dimension_views(
     axes[1].set_xlabel("x [in]")
     axes[1].set_ylabel("z [in]")
     axes[1].grid(True, alpha=0.3)
+    axes[1].axvline(geometry.support_a_x_in, color="tab:red", linestyle="--", linewidth=1.0, alpha=0.7)
+    axes[1].axvline(geometry.support_b_x_in, color="tab:red", linestyle="--", linewidth=1.0, alpha=0.7)
 
     axes[2].plot(x_in, opening_ratio, color="tab:green", linewidth=2.0)
     add_profile_annotations(
@@ -526,6 +613,8 @@ def plot_outer_dimension_views(
     axes[2].set_ylabel("opening ratio [-]")
     axes[2].set_ylim(-0.02, 1.02)
     axes[2].grid(True, alpha=0.3)
+    axes[2].axvline(geometry.support_a_x_in, color="tab:red", linestyle="--", linewidth=1.0, alpha=0.7)
+    axes[2].axvline(geometry.support_b_x_in, color="tab:red", linestyle="--", linewidth=1.0, alpha=0.7)
 
     fig.tight_layout()
     fig.savefig(output_dir / "outer_dimension_views.png", dpi=200)
@@ -602,6 +691,10 @@ def plot_load_case(result: AnalysisResult, load_case: LoadCase, output_dir: Path
     axes[1, 1].set_xlabel("x [in]")
     axes[1, 1].set_ylabel("FoS [-]")
     axes[1, 1].grid(True, alpha=0.3)
+    finite_fos = result.factor_of_safety[np.isfinite(result.factor_of_safety)]
+    if finite_fos.size:
+        upper_limit = max(2.0, min(float(np.percentile(finite_fos, 95)) * 1.10, 10.0))
+        axes[1, 1].set_ylim(0.0, upper_limit)
 
     axes[2, 0].plot(result.x_in, result.slope_rad)
     axes[2, 0].set_title(f"{prefix}: Slope")
@@ -615,6 +708,11 @@ def plot_load_case(result: AnalysisResult, load_case: LoadCase, output_dir: Path
     axes[2, 1].set_ylabel("v [in]")
     axes[2, 1].grid(True, alpha=0.3)
 
+    for axis in axes.flat:
+        axis.axvline(result.support_a_x_in, color="0.45", linestyle=":", linewidth=1.0)
+        axis.axvline(result.support_b_x_in, color="0.45", linestyle=":", linewidth=1.0)
+        axis.axvline(result.load_global_x_in, color="tab:red", linestyle="--", linewidth=0.9, alpha=0.7)
+
     fig.tight_layout()
     file_name = load_case.name.lower().replace(" ", "_") + "_results.png"
     fig.savefig(output_dir / file_name, dpi=200)
@@ -623,7 +721,10 @@ def plot_load_case(result: AnalysisResult, load_case: LoadCase, output_dir: Path
 
 def print_summary(result: AnalysisResult, load_case: LoadCase) -> None:
     print(f"\n{load_case.name} ({orientation_label(load_case.orientation)})")
-    print(f"  Applied load: {load_case.load_lbf:.3f} lbf at x = {load_case.location_in:.3f} in")
+    print(
+        f"  Applied load: {load_case.load_lbf:.3f} lbf at x = {load_case.location_in:.3f} in from support A "
+        f"(global x = {result.load_global_x_in:.3f} in)"
+    )
     print(f"  Reaction A: {result.reaction_a_lbf:.3f} lbf")
     print(f"  Reaction B: {result.reaction_b_lbf:.3f} lbf")
     print(
@@ -649,6 +750,8 @@ def default_geometry() -> TaperedRectangularTube:
     return TaperedRectangularTube(
         span_in=8.0,
         total_length_in=9.0,
+        support_a_x_in=0.5,
+        support_b_x_in=8.5,
         left_width_in=1.10,
         mid_width_in=1.10,
         right_width_in=1.10,
@@ -694,6 +797,8 @@ def build_geometry_from_args(args: argparse.Namespace) -> tuple[TaperedRectangul
         TaperedRectangularTube(
             span_in=args.span_in,
             total_length_in=args.total_length_in,
+            support_a_x_in=args.support_a_x_in,
+            support_b_x_in=args.support_b_x_in,
             left_width_in=left_width_in,
             mid_width_in=mid_width_in,
             right_width_in=right_width_in,
@@ -775,6 +880,8 @@ def main() -> None:
     parser.add_argument("--geometry-mode", choices=["sample", "custom"], default="sample")
     parser.add_argument("--span-in", type=float, default=sample_geometry.span_in)
     parser.add_argument("--total-length-in", type=float, default=sample_geometry.total_length_in)
+    parser.add_argument("--support-a-x-in", type=float, default=sample_geometry.support_a_x_in)
+    parser.add_argument("--support-b-x-in", type=float, default=sample_geometry.support_b_x_in)
     parser.add_argument(
         "--outer-width-in",
         type=float,
@@ -829,7 +936,11 @@ def main() -> None:
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    x_in = build_x_grid(geometry.span_in, stations=args.stations)
+    x_in = build_x_grid(
+        geometry.total_length_in,
+        stations=args.stations,
+        critical_positions_in=[geometry.support_a_x_in, geometry.support_b_x_in],
+    )
     plot_geometry(geometry, output_dir, x_in)
 
     print(f"Beam geometry mode: {geometry_mode}")
@@ -843,6 +954,10 @@ def main() -> None:
         f"[{geometry.left_height_in:.3f}, {geometry.mid_height_in:.3f}, {geometry.right_height_in:.3f}] in"
     )
     print(f"  Wall thickness: {geometry.wall_thickness_in:.3f} in")
+    print(
+        f"  Support locations: x = {geometry.support_a_x_in:.3f} in and x = {geometry.support_b_x_in:.3f} in "
+        f"(span = {geometry.span_in:.3f} in, total length = {geometry.total_length_in:.3f} in)"
+    )
     print(
         "  Web opening ratios [left, mid, right]: "
         f"[{geometry.left_web_opening_ratio:.3f}, {geometry.mid_web_opening_ratio:.3f}, {geometry.right_web_opening_ratio:.3f}]"

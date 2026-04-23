@@ -122,10 +122,12 @@ def make_front_view_diagram(output_dir: Path) -> None:
     fig, ax = plt.subplots(figsize=(8.6, 4.6))
     x0 = 0.6
     y0 = 1.4
-    length = 8.0
+    length = 9.0
     left_h = 1.0
     mid_h = 2.2
     right_h = 1.0
+    support_a_x = x0 + 0.5
+    support_b_x = x0 + 8.5
 
     top_pts = [
         (x0, y0 + left_h / 2.0),
@@ -149,9 +151,11 @@ def make_front_view_diagram(output_dir: Path) -> None:
     ax.plot([x0 + length / 2.0, x0 + length / 2.0], [y0 - 1.45, y0 + 1.72], linestyle="--", color="gray", linewidth=1.2)
     ax.plot([x0, x0], [y0 - 0.95, y0 + 1.12], linestyle="--", color="gray", linewidth=1.2)
     ax.plot([x0 + length, x0 + length], [y0 - 0.95, y0 + 1.12], linestyle="--", color="gray", linewidth=1.2)
+    ax.plot([support_a_x, support_a_x], [y0 - 1.15, y0 + 1.25], linestyle=":", color="tab:red", linewidth=1.2)
+    ax.plot([support_b_x, support_b_x], [y0 - 1.15, y0 + 1.25], linestyle=":", color="tab:red", linewidth=1.2)
 
-    add_double_arrow(ax, (x0 + 0.05, y0 + 1.12), (x0 + length / 2.0 - 0.06, y0 + 1.12), r"$x$")
-    add_double_arrow(ax, (x0 + length / 2.0 + 0.06, y0 + 1.12), (x0 + length - 0.05, y0 + 1.12), r"$L-x$")
+    add_double_arrow(ax, (x0, y0 + 1.55), (x0 + length, y0 + 1.55), r"$L_\mathrm{total}=9\ \mathrm{in}$", text_offset=(0.0, 0.14))
+    add_double_arrow(ax, (support_a_x, y0 + 1.12), (support_b_x, y0 + 1.12), r"$L=8\ \mathrm{in}$")
     add_double_arrow(ax, (x0 - 0.75, y0 - left_h / 2.0), (x0 - 0.75, y0 + left_h / 2.0), r"$h(0)$", text_offset=(-0.25, 0.0))
     add_double_arrow(
         ax,
@@ -165,7 +169,9 @@ def make_front_view_diagram(output_dir: Path) -> None:
     add_axis_arrow(ax, (0.15, 0.15), (0.15, 1.05), r"$y$")
 
     ax.text(x0 + length / 2.0, y0 + 2.02, "Front view: tapered height profile", fontsize=11, ha="center")
-    ax.set_xlim(-0.55, 9.95)
+    ax.text(support_a_x, y0 - 1.28, "Support A", fontsize=9, color="tab:red", ha="center")
+    ax.text(support_b_x, y0 - 1.28, "Support B", fontsize=9, color="tab:red", ha="center")
+    ax.set_xlim(-0.55, 10.95)
     ax.set_ylim(-0.2, 3.7)
     ax.set_aspect("equal", adjustable="box")
     ax.axis("off")
