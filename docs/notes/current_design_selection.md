@@ -32,6 +32,17 @@ Key metrics:
 - Governing location: `x = 5.500 in`
 - Maximum deflection: `0.16121 in`
 
+## Current Physical Print/Test Pass
+
+For the current physical print pass, only ranks 02, 03, and 04 from
+`best-designs-20` were printed. Rank 01, rank 05, and the remaining ranked
+candidates were not printed in this pass.
+
+Rank 02 is expected to be the best printed candidate because it has the lowest
+modeled weight among the printed set. The final report choice should be made
+after testing ranks 02, 03, and 04, using the lightest printed beam that does
+not fail.
+
 ## Where the Active Files Live
 
 ### Corrected active run

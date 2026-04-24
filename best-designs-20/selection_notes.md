@@ -36,11 +36,16 @@ Metrics:
 - Max opening ratio: `0.000`
 - Minimum print ligament: `0.17479 in`
 
+## Current Physical Print/Test Set
+
+Only ranks 02, 03, and 04 were printed for the current physical test pass. Rank 01, rank 05, and ranks 06-20 were not printed in this pass.
+
+Rank 02 is the expected best physical candidate because it is the lightest printed beam. The final report candidate should be chosen after testing ranks 02, 03, and 04: use the lightest printed beam that does not fail.
+
 ## Folder Map
 
 - `ranked-designs/`: top 20 closed-tube print-safe design folders, ranked by weight.
 - `3d-models/`: STL, OBJ, DXF, and preview PNG with filenames matching weight rank.
 - `report-packages/`: packaged per-design report folders with copied 3D files and plots.
 - `ranking_summary.csv`: compact weight-ranked table.
-- `print_test_shortlist.md`: recommended five-print order from the weight-ranked set.
-
+- `print_test_shortlist.md`: actual print/test set for ranks 02, 03, and 04.

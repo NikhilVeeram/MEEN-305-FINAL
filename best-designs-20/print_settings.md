@@ -2,7 +2,9 @@
 
 Generated on 2026-04-24 for the weight-ranked `best-designs-20` beam prints.
 
-These settings are part of the experimental definition. Use the same profile for the print-test shortlist so measured mass, stiffness, and failure behavior are comparable across candidates.
+These settings are part of the experimental definition. Use the same profile for the printed test set so measured mass, stiffness, and failure behavior are comparable across candidates.
+
+Actual current print/test set: only ranks 02, 03, and 04 were printed. Rank 02 is the expected best candidate if it survives testing, because it is the lightest printed beam.
 
 ## Import And Scale
 
@@ -13,13 +15,14 @@ These settings are part of the experimental definition. Use the same profile for
 - Keep scale locked uniformly in X/Y/Z.
 - Preferred print orientation: use `best-designs-20/3d-models-print-oriented/`, which rotates the tube `45 deg` about the 9 in beam length.
 - Backup manual orientation: if using files from `best-designs-20/3d-models/`, rotate the part `45 deg` about the long X axis after scaling.
-- Do not use normal internal supports for the closed tube. Internal supports can become trapped and will change measured mass and strength.
+- Actual first supported slice record: supports were included, but the support strategy should still be reduced or removed where practical because trapped internal supports can change measured mass and strength.
 
-For Rank 01 after correct scaling:
+For the printed rank 02/03/04 candidates after correct scaling:
 
-- maximum height: about `15.41 mm`
-- maximum width: about `11.85 mm`
-- modeled wall thickness: about `1.54 mm`
+- Rank 02 maximum height/width: about `17.08 mm` / `10.60 mm`
+- Rank 03 maximum height/width: about `17.99 mm` / `11.33 mm`
+- Rank 04 maximum height/width: about `21.65 mm` / `14.22 mm`
+- modeled wall thickness: about `1.52-1.53 mm`
 
 ## Recommended Slicer Profile
 
@@ -28,8 +31,8 @@ Printer/process context:
 - Printer: Creality K1 with `0.4 mm` nozzle
 - Process base: `0.20mm Standard @Creality K1 (0.4 nozzle)`
 - Filament: `RPS Settings - HF PLA`
-- Supports: off
-- If the slicer still insists on support, use external/build-plate-only support with support blockers inside the tube.
+- Supports: actual supported test included supports; next iteration should try to eliminate them or restrict them to removable external/build-plate contact only.
+- If the slicer still insists on support, use support blockers inside the tube.
 - Raft: off
 - Brim: on, `3-5 mm`, removed before weighing
 
@@ -49,7 +52,7 @@ Strength:
 - Bottom shell thickness: `1.0 mm`
 - Bottom surface density: `100%`
 - Sparse infill density: `100%`
-- Sparse infill pattern: rectilinear/lines if available; otherwise monotonic
+- Sparse infill pattern: monotonic for the actual supported test
 - Internal solid infill pattern: monotonic
 
 Temperature and cooling:
@@ -61,10 +64,8 @@ Temperature and cooling:
 
 Speed guidance:
 
-- Outer walls: about `60 mm/s`
-- Inner walls: about `80-100 mm/s`
-- Solid infill: about `80 mm/s`
-- Avoid very high-speed defaults for the test parts; strength and dimensional consistency matter more than print time here.
+- Actual supported test kept the base profile speeds unchanged.
+- For future controlled comparisons, either keep speed unchanged for every beam or record any speed edits explicitly.
 
 ## Why These Settings
 
@@ -76,10 +77,13 @@ Do not use `15%` sparse infill for the print-test beams. It makes the actual wal
 
 ## Measurement Record
 
-For each printed shortlist beam, record:
+For each printed test beam, record:
 
 - candidate filename
 - slicer scale confirmation: `2540%` or X = `228.6 mm`
+- support setting used, including whether supports were internal, external-only, or blocked inside the tube
+- infill/surface pattern used; first supported slice used monotonic throughout
+- speed profile used; first supported slice kept the base profile speeds unchanged
 - printed mass after brim removal
 - print time
 - visible defects, seams, gaps, or bridge sag

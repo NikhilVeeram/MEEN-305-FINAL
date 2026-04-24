@@ -4,6 +4,21 @@ This folder contains generated 3D models and preview renders for the beam design
 
 Print orientation: `diamond-45`, meaning each mesh is rotated 45 degrees about the beam length to reduce closed-tube bridge warnings.
 
+Current physical print/test pass: only ranks 02, 03, and 04 were printed. Rank 02 is the expected best candidate if it survives testing because it is the lightest printed beam. Rank 01, rank 05, and the rest of the set were not printed in this pass.
+
+## Support Fixtures
+
+The support fixture files model the project-description supports as compact tapered blocks, not a full-length build-plate rail. The pair file places the block centers at `x = 0.5 in` and `x = 8.5 in`, giving the actual 8.0 in support span.
+
+- Pair fixture STL: [support_block_pair_8in_span_tapered_flat_top.stl](support_block_pair_8in_span_tapered_flat_top.stl)
+- Pair fixture OBJ: [support_block_pair_8in_span_tapered_flat_top.obj](support_block_pair_8in_span_tapered_flat_top.obj)
+- Pair fixture preview: [support_block_pair_8in_span_tapered_flat_top_preview.png](support_block_pair_8in_span_tapered_flat_top_preview.png)
+- Single support STL: [support_block_single_tapered_flat_top.stl](support_block_single_tapered_flat_top.stl)
+- Single support OBJ: [support_block_single_tapered_flat_top.obj](support_block_single_tapered_flat_top.obj)
+- Single support preview: [support_block_single_tapered_flat_top_preview.png](support_block_single_tapered_flat_top_preview.png)
+
+Fixture geometry is in inches like the beam meshes. Import at the same `2540%` scale if the slicer treats STL units as millimeters. Each support block has a `0.80 in x 0.80 in` base, a `0.56 in x 0.62 in` flat top, and a `0.50 in` height. The top is deliberately a little over the project minimum `0.5 in` support width so the beam has room to sit without making the support oversized.
+
 ## Generated designs
 
 ### 01_overall_rank__continuous_uniform_both_load_cases_9in_corrected__eval_0219__w_0.03983__fos_1.761
