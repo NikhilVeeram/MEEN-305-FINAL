@@ -4,6 +4,8 @@ Generated on 2026-04-24.
 
 This shortlist follows the updated priority: minimize weight first while keeping the closed-tube print-safe gates.
 
+Use `print_settings.md` for the slicer setup. In particular, import the STL at `2540%` uniform scale, or set X length to `228.6 mm`, because the generated mesh coordinates are in inches.
+
 ## Print Order
 
 | Print | Candidate | Why print it |
@@ -25,4 +27,3 @@ All five are closed tubes with:
 - max dimension slope <= `0.140 in/in`
 - max deflection <= `0.165 in`
 - min FoS >= `1.5`
-

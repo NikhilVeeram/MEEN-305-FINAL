@@ -14,5 +14,6 @@ Weight is the primary ranking target. Load Case 2 flatness over x=3..7 is retain
 - `ranking_summary.csv`: compact table for report selection.
 - `selection_notes.md`: short explanation of the weight-first ranking.
 - `print_test_shortlist.md`: five recommended weight-priority prints.
+- `print_settings.md`: slicer settings to use for comparable print-test results.
 
 Archived non-top-20 ranked candidates: `archive/ranked-design-candidates/ranked_candidates_after_top20.csv`.
