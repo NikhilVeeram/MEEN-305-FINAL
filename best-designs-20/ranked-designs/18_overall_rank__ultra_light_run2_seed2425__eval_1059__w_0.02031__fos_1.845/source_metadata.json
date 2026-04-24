@@ -1,7 +1,0 @@
-{
-  "rank": 18,
-  "source_run": "ultra_light_run2_seed2425",
-  "source_evaluation_id": 1059,
-  "rank_score": 0.020314514785239077,
-  "ranking_formula": "weight_lbf, with tie-breakers max_deflection_in, abs(min_fos - 1.5), fos_3to7_std"
-}

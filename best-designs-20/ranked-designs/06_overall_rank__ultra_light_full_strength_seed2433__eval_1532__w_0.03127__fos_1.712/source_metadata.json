@@ -1,0 +1,7 @@
+{
+  "rank": 6,
+  "source_run": "ultra_light_full_strength_seed2433",
+  "source_evaluation_id": 1532,
+  "rank_score": 0.031265209266354885,
+  "ranking_formula": "weight_lbf, with tie-breakers max_deflection_in, abs(min_fos - 1.5), fos_3to7_std"
+}

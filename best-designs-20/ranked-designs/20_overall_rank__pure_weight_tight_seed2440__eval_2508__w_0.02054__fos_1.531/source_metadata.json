@@ -1,7 +1,0 @@
-{
-  "rank": 20,
-  "source_run": "pure_weight_tight_seed2440",
-  "source_evaluation_id": 2508,
-  "rank_score": 0.02054451645150067,
-  "ranking_formula": "weight_lbf, with tie-breakers max_deflection_in, abs(min_fos - 1.5), fos_3to7_std"
-}

@@ -1,0 +1,103 @@
+{
+  "search_config": {
+    "initial_samples": 360,
+    "refinement_rounds": 4,
+    "elite_count": 16,
+    "local_samples_per_elite": 24,
+    "min_feasible_designs": 25,
+    "excess_fos_weight": 12.0,
+    "underutilization_weight": 0.25,
+    "uniformity_weight": 1.2,
+    "symmetry_weight": 0.0,
+    "smoothness_weight": 0.0,
+    "envelope_stress_floor_ratio": 0.35,
+    "uniformity_case": "all",
+    "mirror_profile": true,
+    "seed": 305
+  },
+  "constraint_config": {
+    "min_factor_of_safety": 1.5,
+    "max_deflection_in": null
+  },
+  "durability_config": {
+    "min_web_ligament_in": 0.08,
+    "min_shell_area_ratio": 0.18,
+    "max_height_ratio": 2.4,
+    "max_width_ratio": 2.4,
+    "max_dim_slope_in_per_in": 0.25,
+    "stress_concentration_limit": 10.0
+  },
+  "geometry": {
+    "span_in": 8.0,
+    "total_length_in": 9.0,
+    "support_a_x_in": 0.5,
+    "support_b_x_in": 8.5,
+    "left_width_in": 0.37469177003579596,
+    "mid_width_in": 0.5007705419970541,
+    "right_width_in": 0.37469177003579596,
+    "left_height_in": 0.6042451795703707,
+    "mid_height_in": 0.3384253805897204,
+    "right_height_in": 0.6042451795703707,
+    "wall_thickness_in": 0.06275189461290857,
+    "left_web_opening_ratio": 0.0,
+    "mid_web_opening_ratio": 0.0,
+    "right_web_opening_ratio": 0.0
+  },
+  "metrics": {
+    "weight_lbf": 0.03982773291762153,
+    "min_factor_of_safety": 1.6949938267735305,
+    "max_deflection_in": 0.10435121887791146,
+    "governing_load_case": "Load Case 2",
+    "governing_x_in": 5.5,
+    "feasible": true,
+    "objective": 0.7631216643943771,
+    "penalty": 0.0,
+    "uniformity_score": 0.18771605694554558,
+    "symmetry_score": 5.530580395795929e-07,
+    "smoothness_score": 0.019759982459730673,
+    "durability_score": 0.0,
+    "constraint_violations": [],
+    "rank_score": 0.03982773291762153,
+    "fos_3to7_mean": 2.33718208181869,
+    "fos_3to7_std": 0.4767917331304993,
+    "fos_3to7_range": 1.7109637426680784,
+    "fos_3to7_min": 1.6949938267735305,
+    "fos_3to7_max": 3.405957569441609,
+    "min_print_web_ligament_in": 0.10646079568195162,
+    "min_shell_area_ratio": 0.470096894212962,
+    "max_web_opening_ratio": 0.0,
+    "max_dim_slope_in_per_in": 0.05907106644019677
+  },
+  "load_cases": [
+    {
+      "name": "Load Case 1",
+      "orientation": "upright",
+      "load_lbf": 5.0,
+      "location_in": 4.0,
+      "reaction_a_lbf": 2.5,
+      "reaction_b_lbf": 2.5,
+      "max_von_mises_psi": 1296.3310031840829,
+      "max_von_mises_x_in": 4.5,
+      "min_factor_of_safety": 1.8359508444634745,
+      "min_factor_of_safety_x_in": 4.5,
+      "max_deflection_in": 0.09914406477198118,
+      "max_deflection_x_in": 4.5,
+      "max_slope_rad": 0.03398496787199574
+    },
+    {
+      "name": "Load Case 2",
+      "orientation": "side",
+      "load_lbf": 8.0,
+      "location_in": 5.0,
+      "reaction_a_lbf": 3.0,
+      "reaction_b_lbf": 5.0,
+      "max_von_mises_psi": 1404.1349073998686,
+      "max_von_mises_x_in": 5.5,
+      "min_factor_of_safety": 1.6949938267735305,
+      "min_factor_of_safety_x_in": 5.5,
+      "max_deflection_in": 0.10435121887791146,
+      "max_deflection_x_in": 4.7924999999999995,
+      "max_slope_rad": 0.04394137780123319
+    }
+  ]
+}

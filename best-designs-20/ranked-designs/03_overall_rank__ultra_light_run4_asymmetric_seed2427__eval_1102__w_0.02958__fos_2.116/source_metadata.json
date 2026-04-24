@@ -1,0 +1,7 @@
+{
+  "rank": 3,
+  "source_run": "ultra_light_run4_asymmetric_seed2427",
+  "source_evaluation_id": 1102,
+  "rank_score": 0.02958485540992163,
+  "ranking_formula": "weight_lbf, with tie-breakers max_deflection_in, abs(min_fos - 1.5), fos_3to7_std"
+}

@@ -1,7 +1,0 @@
-{
-  "rank": 4,
-  "source_run": "ultra_light_full_infill_seed2432",
-  "source_evaluation_id": 1399,
-  "rank_score": 0.019682458782664985,
-  "ranking_formula": "weight_lbf, with tie-breakers max_deflection_in, abs(min_fos - 1.5), fos_3to7_std"
-}

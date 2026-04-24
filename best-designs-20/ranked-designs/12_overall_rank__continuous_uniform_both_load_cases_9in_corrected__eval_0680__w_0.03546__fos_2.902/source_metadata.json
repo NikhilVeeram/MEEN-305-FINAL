@@ -1,0 +1,7 @@
+{
+  "rank": 12,
+  "source_run": "continuous_uniform_both_load_cases_9in_corrected",
+  "source_evaluation_id": 680,
+  "rank_score": 0.0354562502680753,
+  "ranking_formula": "weight_lbf, with tie-breakers max_deflection_in, abs(min_fos - 1.5), fos_3to7_std"
+}
