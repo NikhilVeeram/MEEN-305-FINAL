@@ -11,7 +11,9 @@ These settings are part of the experimental definition. Use the same profile for
 - Reason: the generated STL/OBJ coordinates are in inches, and most slicers import unitless mesh files as millimeters.
 - Expected final length: `9.000 in` = `228.6 mm`
 - Keep scale locked uniformly in X/Y/Z.
-- Print orientation: as exported, with the 9 in beam length along the bed and the structural height in Z.
+- Preferred print orientation: use `best-designs-20/3d-models-print-oriented/`, which rotates the tube `45 deg` about the 9 in beam length.
+- Backup manual orientation: if using files from `best-designs-20/3d-models/`, rotate the part `45 deg` about the long X axis after scaling.
+- Do not use normal internal supports for the closed tube. Internal supports can become trapped and will change measured mass and strength.
 
 For Rank 01 after correct scaling:
 
@@ -27,6 +29,7 @@ Printer/process context:
 - Process base: `0.20mm Standard @Creality K1 (0.4 nozzle)`
 - Filament: `RPS Settings - HF PLA`
 - Supports: off
+- If the slicer still insists on support, use external/build-plate-only support with support blockers inside the tube.
 - Raft: off
 - Brim: on, `3-5 mm`, removed before weighing
 
@@ -66,6 +69,8 @@ Speed guidance:
 ## Why These Settings
 
 The structural model assumes the printed tube walls are contiguous solid material. The top designs use roughly `0.060 in` wall thickness, which is about `1.52 mm`; with a `0.4 mm` nozzle, `3` wall loops plus solid internal fill should make the modeled walls continuous without intentionally filling the hollow beam cavity.
+
+The original as-designed orientation can trigger a floating-cantilever warning because the top wall of a closed tube is treated as a long bridge over the hollow interior. The `45 deg` diamond print orientation turns that roof bridge into gradually supported angled walls, while keeping the beam geometry and test dimensions unchanged.
 
 Do not use `15%` sparse infill for the print-test beams. It makes the actual wall behavior depend on the slicer infill pattern instead of the optimized beam geometry.
 

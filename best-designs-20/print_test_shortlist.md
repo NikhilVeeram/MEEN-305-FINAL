@@ -4,7 +4,7 @@ Generated on 2026-04-24.
 
 This shortlist follows the updated priority: minimize weight first while keeping the closed-tube print-safe gates.
 
-Use `print_settings.md` for the slicer setup. In particular, import the STL at `2540%` uniform scale, or set X length to `228.6 mm`, because the generated mesh coordinates are in inches.
+Use `print_settings.md` for the slicer setup. Prefer the STLs in `3d-models-print-oriented/`; they are rotated 45 degrees about the beam length to avoid the closed-tube floating-cantilever warning. Import at `2540%` uniform scale, or set X length to `228.6 mm`, because the generated mesh coordinates are in inches.
 
 ## Print Order
 

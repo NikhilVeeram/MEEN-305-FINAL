@@ -174,6 +174,18 @@ def build_beam_mesh(geometry: TaperedRectangularTube, stations: int) -> Mesh:
     return mesh
 
 
+def rotate_mesh_about_length(mesh: Mesh, degrees: float) -> Mesh:
+    angle_rad = np.deg2rad(degrees)
+    cosine = float(np.cos(angle_rad))
+    sine = float(np.sin(angle_rad))
+    rotated_vertices = []
+    for x_value, z_value, y_value in mesh.vertices:
+        rotated_z = z_value * cosine - y_value * sine
+        rotated_y = z_value * sine + y_value * cosine
+        rotated_vertices.append((x_value, rotated_z, rotated_y))
+    return Mesh(vertices=rotated_vertices, faces=list(mesh.faces))
+
+
 def triangle_normal(a: np.ndarray, b: np.ndarray, c: np.ndarray) -> np.ndarray:
     normal = np.cross(b - a, c - a)
     magnitude = np.linalg.norm(normal)
@@ -426,6 +438,7 @@ def discover_designs(search_roots: list[Path], include_sample_geometry: bool) ->
 def write_manifest(
     output_dir: Path,
     generated_paths: list[tuple[str, Path, Path, Path, Path | None]],
+    print_orientation: str = "as-designed",
 ) -> None:
     manifest_path = output_dir / "README.md"
     lines = [
@@ -433,9 +446,15 @@ def write_manifest(
         "",
         "This folder contains generated 3D models and preview renders for the beam designs found in the repo.",
         "",
-        "## Generated designs",
-        "",
     ]
+    if print_orientation == "diamond-45":
+        lines.extend(
+            [
+                "Print orientation: `diamond-45`, meaning each mesh is rotated 45 degrees about the beam length to reduce closed-tube bridge warnings.",
+                "",
+            ]
+        )
+    lines.extend(["## Generated designs", ""])
 
     for design_name, stl_path, obj_path, png_path, dxf_path in generated_paths:
         lines.extend(
@@ -539,6 +558,12 @@ def main() -> None:
     parser.add_argument("--write-dxf", action="store_true", help="Also export a simple DXF sketch for each design.")
     parser.add_argument("--include-sample-geometry", action="store_true")
     parser.add_argument("--stations", type=int, default=121)
+    parser.add_argument(
+        "--print-orientation",
+        choices=("as-designed", "diamond-45"),
+        default="as-designed",
+        help="Rotate the 3D mesh for print setup. diamond-45 rotates the tube 45 degrees about the beam length.",
+    )
     args = parser.parse_args()
 
     search_roots = [Path(path) for path in args.search_root] if args.search_root else [
@@ -557,6 +582,8 @@ def main() -> None:
         geometry = design.geometry
         safe_name = design_name.replace(" ", "_").lower()
         mesh = build_beam_mesh(geometry, stations=args.stations)
+        if args.print_orientation == "diamond-45":
+            mesh = rotate_mesh_about_length(mesh, degrees=45.0)
 
         stl_path = output_dir / f"{safe_name}.stl"
         obj_path = output_dir / f"{safe_name}.obj"
@@ -585,7 +612,7 @@ def main() -> None:
         if dxf_path is not None:
             print(f"  DXF: {dxf_path.resolve()}")
 
-    write_manifest(output_dir, generated_paths)
+    write_manifest(output_dir, generated_paths, print_orientation=args.print_orientation)
     print(f"\n3D models written to: {output_dir.resolve()}")
 
 
