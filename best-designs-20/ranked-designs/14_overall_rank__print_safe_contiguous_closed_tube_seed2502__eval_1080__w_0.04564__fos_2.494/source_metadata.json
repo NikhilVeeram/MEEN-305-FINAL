@@ -1,0 +1,7 @@
+{
+  "rank": 14,
+  "source_run": "print_safe_contiguous_closed_tube_seed2502",
+  "source_evaluation_id": 1080,
+  "rank_score": 0.04563863563071494,
+  "ranking_formula": "weight_lbf, with tie-breakers max_deflection_in, abs(min_fos - 1.5), fos_3to7_std"
+}

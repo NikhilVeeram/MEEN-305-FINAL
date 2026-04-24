@@ -2,11 +2,15 @@
 
 Generated on 2026-04-24.
 
-## Print-Safe Regeneration
+## Weight-First Ranking
 
-The top 20 was regenerated after a printability audit found that the earlier ranking still allowed thin walls and continuous web openings. The current set is deliberately more conservative.
+The current `best-designs-20` set is ranked by lowest beam weight first. The tie-breakers are:
 
-Hard gates now used for `best-designs-20`:
+1. lower maximum deflection
+2. FoS closer to `1.5`
+3. lower Load Case 2 FoS standard deviation over x = 3..7
+
+The hard print-safe gates are unchanged:
 
 - corrected 9.0 in beam with supports at x = 0.5 in and x = 8.5 in
 - closed tube only: max web opening ratio = `0.000`
@@ -17,46 +21,26 @@ Hard gates now used for `best-designs-20`:
 - max deflection <= `0.165 in`
 - min FoS >= `1.5`
 
-This means the current top 20 is heavier than the earlier flatness/mass ranking, but it is much more appropriate for actual FDM print tests.
+## Lightest Current Pick
 
-## Current Best Pick
+Rank 01 is now the lightest print-safe closed-tube candidate:
 
-Rank 01 is the best closed-tube candidate by the ranking score:
-
-`01_overall_rank__print_safe_contiguous_closed_tube_seed2502__eval_1113__w_0.04801__fos_1.591`
+`01_overall_rank__continuous_uniform_both_load_cases_9in_corrected__eval_0219__w_0.03983__fos_1.761`
 
 Metrics:
 
-- Weight: `0.04801 lbf`
-- Minimum FoS: `1.591`
-- Maximum deflection: `0.16477 in`
-- Wall thickness: `0.06309 in`
+- Weight: `0.03983 lbf`
+- Minimum FoS: `1.761`
+- Maximum deflection: `0.11057 in`
+- Wall thickness: `0.06072 in`
 - Max opening ratio: `0.000`
-- Minimum print ligament: `0.24917 in`
-
-Because its deflection is close to the imposed limit, the print-test shortlist starts with Rank 02 instead.
-
-## Print Test Shortlist
-
-Use `print_test_shortlist.md` for the recommended five prints and test order.
-
-Short version:
-
-1. Rank 02: best first print, balanced and smooth.
-2. Rank 06: closest to FoS = 1.5 while print-safe.
-3. Rank 07: light/stiff corrected comparison.
-4. Rank 01: best flatness-ranked closed tube, but near deflection limit.
-5. Rank 04: light/stiff conservative backup.
+- Minimum print ligament: `0.17479 in`
 
 ## Folder Map
 
-- `ranked-designs/`: top 20 closed-tube print-safe design folders.
-- `3d-models/`: STL, OBJ, DXF, and preview PNG for each top-20 candidate.
+- `ranked-designs/`: top 20 closed-tube print-safe design folders, ranked by weight.
+- `3d-models/`: STL, OBJ, DXF, and preview PNG with filenames matching weight rank.
 - `report-packages/`: packaged per-design report folders with copied 3D files and plots.
-- `ranking_summary.csv`: compact ranking table for report selection.
-- `print_test_shortlist.md`: five-print shortlist and order.
-
-Non-top-20 feasible corrected closed-tube candidates are archived in:
-
-`archive/ranked-design-candidates/ranked_candidates_after_top20.csv`
+- `ranking_summary.csv`: compact weight-ranked table.
+- `print_test_shortlist.md`: recommended five-print order from the weight-ranked set.
 

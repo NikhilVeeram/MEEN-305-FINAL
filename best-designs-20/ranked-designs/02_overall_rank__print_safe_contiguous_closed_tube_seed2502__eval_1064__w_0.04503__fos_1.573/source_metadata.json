@@ -1,7 +1,0 @@
-{
-  "rank": 2,
-  "source_run": "print_safe_contiguous_closed_tube_seed2502",
-  "source_evaluation_id": 1064,
-  "rank_score": 0.7435405525291934,
-  "ranking_formula": "fos_3to7_std + 4*weight + 0.8*max_deflection + 0.5*abs(min_fos - 1.5)"
-}

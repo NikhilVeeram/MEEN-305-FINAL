@@ -202,14 +202,10 @@ def evaluate_candidate(
     flat_range = float(np.max(flat_fos) - np.min(flat_fos))
     flat_mean = float(np.mean(flat_fos))
 
-    # Lower is better. The weights intentionally keep flatness dominant while still
-    # rewarding low mass, controlled deflection, and staying close to the FoS target.
-    rank_score = (
-        flat_std
-        + 4.0 * weight
-        + 0.8 * max_deflection
-        + 0.5 * abs(min_fos - 1.5)
-    )
+    # Lower is better. Weight is the primary project target, so the rank score is
+    # the beam weight itself. Deflection, FoS closeness, and flatness are used only
+    # as deterministic tie-breakers in the global sort.
+    rank_score = weight
 
     payload = {
         "search_config": source_payload.get("search_config", {}),
@@ -316,7 +312,7 @@ def write_candidate_folder(candidate: dict[str, Any], rank: int, ranked_dir: Pat
                 "source_run": source_run,
                 "source_evaluation_id": evaluation_id,
                 "rank_score": candidate["rank_score"],
-                "ranking_formula": "fos_3to7_std + 4*weight + 0.8*max_deflection + 0.5*abs(min_fos - 1.5)",
+                "ranking_formula": "weight_lbf, with tie-breakers max_deflection_in, abs(min_fos - 1.5), fos_3to7_std",
             },
             indent=2,
         ),
@@ -342,7 +338,7 @@ def write_candidate_folder(candidate: dict[str, Any], rank: int, ranked_dir: Pat
     report_lines = [
         f"# Rank {rank:02d}: {source_run} eval {evaluation_id}",
         "",
-        f"- Overall rank score: `{candidate['rank_score']:.6f}`",
+        f"- Weight-first rank score: `{candidate['rank_score']:.6f}`",
         f"- Weight: `{metrics['weight_lbf']:.5f} lbf`",
         f"- Minimum FoS: `{metrics['min_factor_of_safety']:.3f}`",
         f"- Max deflection: `{metrics['max_deflection_in']:.5f} in`",
@@ -428,8 +424,10 @@ def main() -> None:
     ranked = sorted(
         candidates,
         key=lambda candidate: (
-            candidate["rank_score"],
             candidate["payload"]["metrics"]["weight_lbf"],
+            candidate["payload"]["metrics"]["max_deflection_in"],
+            abs(candidate["payload"]["metrics"]["min_factor_of_safety"] - 1.5),
+            candidate["payload"]["metrics"]["fos_3to7_std"],
         ),
     )
     top = ranked[: args.top_count]
@@ -469,9 +467,9 @@ def main() -> None:
         "",
         "Top 20 feasible corrected 9 in beam candidates for report review.",
         "",
-        "Ranking formula: `fos_3to7_std + 4*weight + 0.8*max_deflection + 0.5*abs(min_fos - 1.5)`.",
+        "Ranking formula: `weight_lbf`, with tie-breakers `max_deflection_in`, `abs(min_fos - 1.5)`, then `fos_3to7_std`.",
         "",
-        "The formula keeps Load Case 2 FoS flatness over x=3..7 dominant while still accounting for mass, deflection, and safety-margin closeness.",
+        "Weight is the primary ranking target. Load Case 2 flatness over x=3..7 is retained as a reported metric and late tie-breaker.",
         "",
         "## Folders",
         "",

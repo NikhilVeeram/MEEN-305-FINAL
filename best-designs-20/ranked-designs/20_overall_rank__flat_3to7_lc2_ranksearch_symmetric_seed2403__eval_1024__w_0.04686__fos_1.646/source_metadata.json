@@ -1,0 +1,7 @@
+{
+  "rank": 20,
+  "source_run": "flat_3to7_lc2_ranksearch_symmetric_seed2403",
+  "source_evaluation_id": 1024,
+  "rank_score": 0.04686153395283159,
+  "ranking_formula": "weight_lbf, with tie-breakers max_deflection_in, abs(min_fos - 1.5), fos_3to7_std"
+}

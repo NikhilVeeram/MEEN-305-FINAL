@@ -1,2 +1,2 @@
 rank,source_run,source_evaluation_id,rank_score,weight_lbf,min_fos,max_deflection_in,fos_3to7_std,fos_3to7_range,wall_thickness_in,max_web_opening_ratio,min_print_web_ligament_in,min_shell_area_ratio,max_dim_slope_in_per_in
-30,flat_3to7_lc2_ranksearch_symmetric_seed2403,1023,0.95746422,0.05380087,1.86190370,0.14084620,0.44863193,1.49151286,0.07267747,0.00000000,0.28913728,0.51339938,0.03020237
+91,flat_3to7_lc2_ranksearch_symmetric_seed2403,1023,0.05380087,0.05380087,1.86190370,0.14084620,0.44863193,1.49151286,0.07267747,0.00000000,0.28913728,0.51339938,0.03020237
