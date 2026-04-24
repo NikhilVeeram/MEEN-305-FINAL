@@ -1,0 +1,7 @@
+{
+  "rank": 7,
+  "source_run": "continuous_uniform_both_load_cases_9in_corrected",
+  "source_evaluation_id": 219,
+  "rank_score": 0.8056797336191659,
+  "ranking_formula": "fos_3to7_std + 4*weight + 0.8*max_deflection + 0.5*abs(min_fos - 1.5)"
+}

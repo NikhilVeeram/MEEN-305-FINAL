@@ -62,6 +62,8 @@ class SearchConfig:
     smoothness_weight: float
     envelope_stress_floor_ratio: float
     uniformity_case: str
+    uniformity_x_min_in: float | None
+    uniformity_x_max_in: float | None
     mirror_profile: bool
     seed: int
 
@@ -249,6 +251,8 @@ def assess_uniformity(
     target_stress_psi: float,
     stress_floor_ratio: float,
     uniformity_case: str,
+    uniformity_x_min_in: float | None,
+    uniformity_x_max_in: float | None,
 ) -> float:
     if uniformity_case == "load1":
         selected_results = analysis_results[:1]
@@ -267,9 +271,15 @@ def assess_uniformity(
             (result.x_in >= result.support_a_x_in)
             & (result.x_in <= result.support_b_x_in)
         )
-        significant_mask = supported_mask & (result.von_mises_psi >= stress_floor)
+        window_mask = supported_mask
+        if uniformity_x_min_in is not None:
+            window_mask = window_mask & (result.x_in >= uniformity_x_min_in)
+        if uniformity_x_max_in is not None:
+            window_mask = window_mask & (result.x_in <= uniformity_x_max_in)
+
+        significant_mask = window_mask & (result.von_mises_psi >= stress_floor)
         if not np.any(significant_mask):
-            significant_mask = supported_mask & (result.von_mises_psi > 0.0)
+            significant_mask = window_mask & (result.von_mises_psi > 0.0)
         if not np.any(significant_mask):
             continue
         normalized_error = (
@@ -488,6 +498,8 @@ def evaluate_design(
         target_stress_psi=target_stress_psi,
         stress_floor_ratio=search_config.envelope_stress_floor_ratio,
         uniformity_case=search_config.uniformity_case,
+        uniformity_x_min_in=search_config.uniformity_x_min_in,
+        uniformity_x_max_in=search_config.uniformity_x_max_in,
     )
 
     symmetry_score, smoothness_score = assess_shape_bias(
@@ -1410,11 +1422,29 @@ def main() -> None:
     parser.add_argument("--smoothness-weight", type=float, default=0.0)
     parser.add_argument("--envelope-stress-floor-ratio", type=float, default=0.15)
     parser.add_argument("--uniformity-case", choices=["all", "load1", "load2"], default="all")
+    parser.add_argument(
+        "--uniformity-x-min-in",
+        type=float,
+        default=None,
+        help="Optional global x lower bound for the uniformity objective.",
+    )
+    parser.add_argument(
+        "--uniformity-x-max-in",
+        type=float,
+        default=None,
+        help="Optional global x upper bound for the uniformity objective.",
+    )
     parser.add_argument("--mirror-profile", action="store_true")
     parser.add_argument("--seed", type=int, default=305)
     args = parser.parse_args()
     if not np.isclose(args.support_b_x_in - args.support_a_x_in, args.span_in, atol=1.0e-9):
         parser.error("Support spacing must equal --span-in.")
+    if (
+        args.uniformity_x_min_in is not None
+        and args.uniformity_x_max_in is not None
+        and args.uniformity_x_min_in >= args.uniformity_x_max_in
+    ):
+        parser.error("--uniformity-x-min-in must be less than --uniformity-x-max-in.")
 
     base = KNOWN_MATERIALS[args.material]
     material = Material(
@@ -1458,6 +1488,8 @@ def main() -> None:
         smoothness_weight=args.smoothness_weight,
         envelope_stress_floor_ratio=args.envelope_stress_floor_ratio,
         uniformity_case=args.uniformity_case,
+        uniformity_x_min_in=args.uniformity_x_min_in,
+        uniformity_x_max_in=args.uniformity_x_max_in,
         mirror_profile=args.mirror_profile,
         seed=args.seed,
     )
