@@ -1,12 +1,9 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.4.5)  26 APR 2026 17:24
+This is pdfTeX, Version 3.141592653-2.6-1.40.29 (MiKTeX 26.2) (preloaded format=pdflatex 2026.4.5)  26 APR 2026 18:22
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
-**c:/Users/nikhi/Documents/GitHub/MEEN-305-FINAL/docs/reports/final_project_rep
-ort.tex
-
-(c:/Users/nikhi/Documents/GitHub/MEEN-305-FINAL/docs/reports/final_project_repo
-rt.tex
+**./final_project_report.tex
+(final_project_report.tex
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
 (C:\Users\nikhi\AppData\Local\Programs\MiKTeX\tex/latex/base\article.cls
@@ -403,34 +400,34 @@ Package caption Info: hyperref package is loaded.
 Package: parskip 2021-03-14 v2.0h non-zero parskip adjustments
 )
 Package translations Info: No language package found. I am going to use `englis
-h' as default language. on input line 25.
+h' as default language. on input line 27.
 
 (C:\Users\nikhi\AppData\Local\Programs\MiKTeX\tex/latex/l3backend\l3backend-pdf
 tex.def
 File: l3backend-pdftex.def 2025-10-09 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count334
-)
-No file final_project_report.aux.
+) (final_project_report.aux)
 \openout1 = `final_project_report.aux'.
 
-LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
-LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 25.
-LaTeX Font Info:    ... okay on input line 25.
+LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for OMS/cmsy/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for OT1/cmr/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for TS1/cmr/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for PD1/pdf/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+LaTeX Font Info:    Checking defaults for PU/pdf/m/n on input line 27.
+LaTeX Font Info:    ... okay on input line 27.
+
 *geometry* driver: auto-detecting
 *geometry* detected driver: pdftex
 *geometry* verbose mode - [ preamble ] result:
@@ -497,243 +494,197 @@ File: translations-basic-dictionary-english.trsl (english translation file `tra
 nslations-basic-dictionary')
 )
 Package translations Info: loading dictionary `translations-basic-dictionary' f
-or `english'. on input line 25.
-Package hyperref Info: Link coloring OFF on input line 25.
+or `english'. on input line 27.
+Package hyperref Info: Link coloring OFF on input line 27.
+ (final_project_report.out)
+(final_project_report.out)
 \@outlinefile=\write3
 \openout3 = `final_project_report.out'.
 
 Package caption Info: Begin \AtBeginDocument code.
 Package caption Info: End \AtBeginDocument code.
-LaTeX Font Info:    Trying to load font information for U+msa on input line 27.
+LaTeX Font Info:    Trying to load font information for U+msa on input line 29.
 
 
 (C:\Users\nikhi\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsa.fd
 File: umsa.fd 2013/01/14 v3.01 AMS symbols A
 )
-LaTeX Font Info:    Trying to load font information for U+msb on input line 27.
+LaTeX Font Info:    Trying to load font information for U+msb on input line 29.
 
 
 (C:\Users\nikhi\AppData\Local\Programs\MiKTeX\tex/latex/amsfonts\umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 )
-No file final_project_report.toc.
+(final_project_report.toc [1
+
+{C:/Users/nikhi/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}])
 \tf@toc=\write4
 \openout4 = `final_project_report.toc'.
 
-[1
-
-{C:/Users/nikhi/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map}]
-
-LaTeX Warning: Reference `sec:constraints' on page 2 undefined on input line 64
-.
-
-[2] [3] [4]
+ [2] [3] [4] [5]
 <../../archive/deprecated_assets/optimization_final/beam_parameter_map.png, id=
-52, 722.7pt x 505.89pt>
+335, 722.7pt x 505.89pt>
 File: ../../archive/deprecated_assets/optimization_final/beam_parameter_map.png
  Graphic file (type png)
 <use ../../archive/deprecated_assets/optimization_final/beam_parameter_map.png>
 
 Package pdftex.def Info: ../../archive/deprecated_assets/optimization_final/bea
-m_parameter_map.png  used on input line 253.
+m_parameter_map.png  used on input line 255.
 (pdftex.def)             Requested size: 399.29463pt x 279.5063pt.
 <../../archive/deprecated_assets/optimization_final/best_design/outer_dimension
-_views.png, id=54, 1084.05pt x 346.896pt>
+_views.png, id=337, 1084.05pt x 346.896pt>
 File: ../../archive/deprecated_assets/optimization_final/best_design/outer_dime
 nsion_views.png Graphic file (type png)
 <use ../../archive/deprecated_assets/optimization_final/best_design/outer_dimen
 sion_views.png>
 Package pdftex.def Info: ../../archive/deprecated_assets/optimization_final/bes
-t_design/outer_dimension_views.png  used on input line 262.
+t_design/outer_dimension_views.png  used on input line 264.
 (pdftex.def)             Requested size: 469.75502pt x 150.32158pt.
- [5 <../../archive/deprecated_assets/optimization_final/beam_parameter_map.png>
+ [6 <../../archive/deprecated_assets/optimization_final/beam_parameter_map.png>
  <../../archive/deprecated_assets/optimization_final/best_design/outer_dimensio
-n_views.png>] [6]
-Overfull \hbox (162.20186pt too wide) in paragraph at lines 413--416
+n_views.png>] [7]
+Overfull \hbox (162.20186pt too wide) in paragraph at lines 415--418
 \OT1/cmr/m/n/10.95 printer. The fol-low-ing en-gi-neer-ing judg-ment con-strain
 ts are hard-coded in \OT1/cmtt/m/n/10.95 beam[]solver.py \OT1/cmr/m/n/10.95 (\O
 T1/cmtt/m/n/10.95 TaperedRectangularTube.validate()\OT1/cmr/m/n/10.95 ): 
  []
 
-[7] [8] [9]
+[8] [9] [10]
 <../../archive/deprecated_assets/optimization_final/best_design/geometry_proper
-ties.png, id=107, 867.24pt x 346.896pt>
+ties.png, id=376, 867.24pt x 346.896pt>
 File: ../../archive/deprecated_assets/optimization_final/best_design/geometry_p
 roperties.png Graphic file (type png)
 <use ../../archive/deprecated_assets/optimization_final/best_design/geometry_pr
 operties.png>
 Package pdftex.def Info: ../../archive/deprecated_assets/optimization_final/bes
-t_design/geometry_properties.png  used on input line 627.
+t_design/geometry_properties.png  used on input line 629.
 (pdftex.def)             Requested size: 469.75502pt x 187.90329pt.
- [10] [11 <../../archive/deprecated_assets/optimization_final/best_design/geome
+ [11] [12 <../../archive/deprecated_assets/optimization_final/best_design/geome
 try_properties.png>]
 <../../archive/deprecated_assets/optimization_final/best_design/load_case_1_res
-ults.png, id=129, 867.24pt x 867.24pt>
+ults.png, id=390, 867.24pt x 867.24pt>
 File: ../../archive/deprecated_assets/optimization_final/best_design/load_case_
 1_results.png Graphic file (type png)
 <use ../../archive/deprecated_assets/optimization_final/best_design/load_case_1
 _results.png>
 Package pdftex.def Info: ../../archive/deprecated_assets/optimization_final/bes
-t_design/load_case_1_results.png  used on input line 694.
+t_design/load_case_1_results.png  used on input line 696.
 (pdftex.def)             Requested size: 469.75502pt x 469.75827pt.
- [12 <../../archive/deprecated_assets/optimization_final/best_design/load_case_
+ [13 <../../archive/deprecated_assets/optimization_final/best_design/load_case_
 1_results.png>]
 <../../archive/deprecated_assets/optimization_final/best_design/load_case_2_res
-ults.png, id=136, 867.24pt x 867.24pt>
+ults.png, id=398, 867.24pt x 867.24pt>
 File: ../../archive/deprecated_assets/optimization_final/best_design/load_case_
 2_results.png Graphic file (type png)
 <use ../../archive/deprecated_assets/optimization_final/best_design/load_case_2
 _results.png>
 Package pdftex.def Info: ../../archive/deprecated_assets/optimization_final/bes
-t_design/load_case_2_results.png  used on input line 726.
+t_design/load_case_2_results.png  used on input line 728.
 (pdftex.def)             Requested size: 469.75502pt x 469.75827pt.
- [13]
-
-LaTeX Warning: Reference `sec:design' on page 14 undefined on input line 749.
-
-
-LaTeX Warning: Reference `sec:results' on page 14 undefined on input line 749.
-
-
-LaTeX Warning: Reference `sec:design' on page 14 undefined on input line 749.
-
-
-LaTeX Warning: Reference `sec:results' on page 14 undefined on input line 749.
-
-
-Overfull \hbox (168.69492pt too wide) in paragraph at lines 751--763
+ [14]
+Overfull \hbox (168.69492pt too wide) in paragraph at lines 753--765
  [][] 
  []
 
-[14 <../../archive/deprecated_assets/optimization_final/best_design/load_case_2
-_results.png>]
-
-LaTeX Warning: Command \textdegree invalid in math mode on input line 845.
-
-
-LaTeX Warning: Command \textdegree invalid in math mode on input line 845.
-
-Missing character: There is no ° in font cmr10!
-[15]
-
-LaTeX Warning: Reference `sec:theory' on page 16 undefined on input line 859.
-
-[16] [17]
-<figures/beam02/outer_dimension_views.png, id=183, 1084.05pt x 346.896pt>
+[15 <../../archive/deprecated_assets/optimization_final/best_design/load_case_2
+_results.png>] [16] [17] [18]
+<figures/beam02/outer_dimension_views.png, id=438, 1084.05pt x 346.896pt>
 File: figures/beam02/outer_dimension_views.png Graphic file (type png)
 <use figures/beam02/outer_dimension_views.png>
 Package pdftex.def Info: figures/beam02/outer_dimension_views.png  used on inpu
-t line 991.
+t line 993.
 (pdftex.def)             Requested size: 469.75502pt x 150.32158pt.
-<figures/beam02/beam_parameter_map.png, id=184, 722.7pt x 505.89pt>
+<figures/beam02/beam_parameter_map.png, id=439, 722.7pt x 505.89pt>
 File: figures/beam02/beam_parameter_map.png Graphic file (type png)
 <use figures/beam02/beam_parameter_map.png>
 Package pdftex.def Info: figures/beam02/beam_parameter_map.png  used on input l
-ine 1005.
+ine 1007.
 (pdftex.def)             Requested size: 399.29463pt x 279.5063pt.
- [18 <./figures/beam02/outer_dimension_views.png>]
-<figures/beam04/outer_dimension_views.png, id=193, 1084.05pt x 346.896pt>
+ [19 <./figures/beam02/outer_dimension_views.png>]
+<figures/beam04/outer_dimension_views.png, id=449, 1084.05pt x 346.896pt>
 File: figures/beam04/outer_dimension_views.png Graphic file (type png)
 <use figures/beam04/outer_dimension_views.png>
 Package pdftex.def Info: figures/beam04/outer_dimension_views.png  used on inpu
-t line 1039.
+t line 1041.
 (pdftex.def)             Requested size: 469.75502pt x 150.32158pt.
- [19 <./figures/beam02/beam_parameter_map.png>]
-<figures/beam04/beam_parameter_map.png, id=203, 722.7pt x 505.89pt>
+[20 <./figures/beam02/beam_parameter_map.png>]
+<figures/beam04/beam_parameter_map.png, id=458, 722.7pt x 505.89pt>
 File: figures/beam04/beam_parameter_map.png Graphic file (type png)
 <use figures/beam04/beam_parameter_map.png>
 Package pdftex.def Info: figures/beam04/beam_parameter_map.png  used on input l
-ine 1052.
+ine 1054.
 (pdftex.def)             Requested size: 399.29463pt x 279.5063pt.
- [20 <./figures/beam04/outer_dimension_views.png> <./figures/beam04/beam_parame
-ter_map.png>] [21] [22]
-Overfull \hbox (19.16817pt too wide) in paragraph at lines 1281--1291
+ [21 <./figures/beam04/outer_dimension_views.png> <./figures/beam04/beam_parame
+ter_map.png>] [22] [23]
+Overfull \hbox (19.16817pt too wide) in paragraph at lines 1298--1308
  [][] 
  []
 
-[23] [24]
-Overfull \hbox (18.33545pt too wide) in paragraph at lines 1372--1463
+[24] [25] [26]
+Overfull \hbox (18.33545pt too wide) in paragraph at lines 1445--1536
  [][] 
  []
 
-[25]
+[27]
 Overfull \vbox (168.56999pt too high) has occurred while \output is active []
 
 
-[26]
+[28]
 File: figures/beam02/outer_dimension_views.png Graphic file (type png)
 <use figures/beam02/outer_dimension_views.png>
 Package pdftex.def Info: figures/beam02/outer_dimension_views.png  used on inpu
-t line 1487.
+t line 1560.
 (pdftex.def)             Requested size: 469.75502pt x 150.32158pt.
-<figures/beam02/load_case_1_results.png, id=276, 867.24pt x 867.24pt>
+<figures/beam02/load_case_1_results.png, id=526, 867.24pt x 867.24pt>
 File: figures/beam02/load_case_1_results.png Graphic file (type png)
 <use figures/beam02/load_case_1_results.png>
 Package pdftex.def Info: figures/beam02/load_case_1_results.png  used on input 
-line 1498.
+line 1571.
 (pdftex.def)             Requested size: 469.75502pt x 469.75827pt.
- [27]
-<figures/beam02/load_case_2_results.png, id=284, 867.24pt x 867.24pt>
+ [29]
+<figures/beam02/load_case_2_results.png, id=533, 867.24pt x 867.24pt>
 File: figures/beam02/load_case_2_results.png Graphic file (type png)
 <use figures/beam02/load_case_2_results.png>
 Package pdftex.def Info: figures/beam02/load_case_2_results.png  used on input 
-line 1510.
+line 1583.
 (pdftex.def)             Requested size: 469.75502pt x 469.75827pt.
- [28 <./figures/beam02/load_case_1_results.png>]
+ [30 <./figures/beam02/load_case_1_results.png>]
 File: figures/beam04/outer_dimension_views.png Graphic file (type png)
 <use figures/beam04/outer_dimension_views.png>
 Package pdftex.def Info: figures/beam04/outer_dimension_views.png  used on inpu
-t line 1524.
+t line 1597.
 (pdftex.def)             Requested size: 469.75502pt x 150.32158pt.
- [29 <./figures/beam02/load_case_2_results.png>]
-<figures/beam04/load_case_1_results.png, id=297, 867.24pt x 867.24pt>
+ [31 <./figures/beam02/load_case_2_results.png>]
+<figures/beam04/load_case_1_results.png, id=547, 867.24pt x 867.24pt>
 File: figures/beam04/load_case_1_results.png Graphic file (type png)
 <use figures/beam04/load_case_1_results.png>
 Package pdftex.def Info: figures/beam04/load_case_1_results.png  used on input 
-line 1536.
+line 1609.
 (pdftex.def)             Requested size: 469.75502pt x 469.75827pt.
- [30]
-<figures/beam04/load_case_2_results.png, id=304, 867.24pt x 867.24pt>
+ [32]
+<figures/beam04/load_case_2_results.png, id=554, 867.24pt x 867.24pt>
 File: figures/beam04/load_case_2_results.png Graphic file (type png)
 <use figures/beam04/load_case_2_results.png>
 Package pdftex.def Info: figures/beam04/load_case_2_results.png  used on input 
-line 1546.
+line 1619.
 (pdftex.def)             Requested size: 469.75502pt x 469.75827pt.
- [31 <./figures/beam04/load_case_1_results.png>] [32 <./figures/beam04/load_cas
-e_2_results.png>] [33]
-
-LaTeX Warning: Reference `sec:orientation' on page 34 undefined on input line 1
-626.
-
-[34] (final_project_report.aux)
+ [33 <./figures/beam04/load_case_1_results.png>] [34 <./figures/beam04/load_cas
+e_2_results.png>] [35] (final_project_report.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2026-01-19>
  ***********
-
-
-LaTeX Warning: There were undefined references.
-
-
-LaTeX Warning: Label(s) may have changed. Rerun to get cross-references right.
-
-
-Package rerunfilecheck Warning: File `final_project_report.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `final_project_report.out':
-(rerunfilecheck)             Before: <no file>
-(rerunfilecheck)             After:  6FCFC52AAADD8CD6C013413648DC1BE8;11927.
+Package rerunfilecheck Info: File `final_project_report.out' has not changed.
+(rerunfilecheck)             Checksum: 4C00A9F433239B26F0632CA2C86239E2;10164.
  ) 
 Here is how much of TeX's memory you used:
- 16786 strings out of 467867
- 331919 string characters out of 5418335
- 725443 words of memory out of 5000000
- 45338 multiletter control sequences out of 15000+600000
+ 16854 strings out of 467867
+ 333132 string characters out of 5418335
+ 733541 words of memory out of 5000000
+ 45399 multiletter control sequences out of 15000+600000
  640178 words of font info for 88 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,12n,80p,728b,1154s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,12n,80p,670b,1154s stack positions out of 10000i,1000n,20000p,200000b,200000s
  <C:\Users\nikhi\AppData\Local\MiKTeX\fonts/pk/ljfour/jknappen/ec/dpi600\tcrm
 1095.pk><C:/Users/nikhi/AppData/Local/Programs/MiKTeX/fonts/type1/public/amsfon
 ts/cm/cmbx10.pfb><C:/Users/nikhi/AppData/Local/Programs/MiKTeX/fonts/type1/publ
@@ -751,9 +702,9 @@ msfonts/cm/cmsy7.pfb><C:/Users/nikhi/AppData/Local/Programs/MiKTeX/fonts/type1/
 public/amsfonts/cm/cmsy8.pfb><C:/Users/nikhi/AppData/Local/Programs/MiKTeX/font
 s/type1/public/amsfonts/cm/cmti10.pfb><C:/Users/nikhi/AppData/Local/Programs/Mi
 KTeX/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on final_project_report.pdf (34 pages, 2862924 bytes).
+Output written on final_project_report.pdf (35 pages, 2892797 bytes).
 PDF statistics:
- 426 PDF objects out of 1000 (max. 8388607)
- 174 named destinations out of 1000 (max. 500000)
- 66 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 671 PDF objects out of 1000 (max. 8388607)
+ 175 named destinations out of 1000 (max. 500000)
+ 530 words of extra memory for PDF output out of 10000 (max. 10000000)
 

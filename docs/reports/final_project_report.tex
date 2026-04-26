@@ -844,7 +844,7 @@ through F.
   \item \textbf{Small deflections.}
     The Euler-Bernoulli equation $M = EI\,v''$ assumes slopes small enough
     that $v' \ll 1$.  Under LC2 (governing), maximum slope is
-    $\theta_{max} = 0.052\ \mathrm{rad} \approx 3.0°$, which is at the upper
+    $\theta_{max} = 0.052\ \mathrm{rad} \approx 3.0^\circ$, which is at the upper
     boundary of the small-angle assumption.  Actual deflection may be
     slightly underestimated.
 
@@ -1155,17 +1155,22 @@ Deflection values are in inches; location measured from Support~A along the span
 \toprule
 Quantity & Theory & Measured \\
 \midrule
-Weight of beam [g]            & 18.4  & \underline{\hspace{1.5cm}} \\
+Weight of beam [g]            & 18.4  & N/M \\
 $R_A$ [lbf]                   & 2.500 & N/A \\
 $R_B$ [lbf]                   & 2.500 & N/A \\
-Max deflection $|v|_{max}$ [in] & 0.054 & \underline{\hspace{1.5cm}} \\
-Location of max deflection [in from A] & 3.926 & \underline{\hspace{1.5cm}} \\
+Max deflection $|v|_{max}$ [in] & 0.054 & N/M \\
+Location of max deflection [in from A] & 3.926 & $\approx 4.0$ \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \paragraph{Observations.}
-\textit{[FILL IN: visual condition of beam after LC1 loading; any visible deflection, cracking, or creaking.]}
+During LC1 loading, Beam~A showed only minimal visible deflection, estimated
+qualitatively as approximately 1--2$^\circ$ of visible rotation or bending by
+inspection.  No cracking, creaking, layer separation, or permanent deformation
+was observed after the load was removed.  Because a direct displacement reading
+was not recorded, the measured maximum deflection is listed as not measured
+(N/M).
 
 \subsubsection{LC2 -- Side-Rotated Loading (8~lbf at 5~in from A)}
 
@@ -1188,23 +1193,29 @@ Quantity & Theory & Measured \\
 \midrule
 $R_A$ [lbf]                   & 3.000 & N/A \\
 $R_B$ [lbf]                   & 5.000 & N/A \\
-Max deflection $|v|_{max}$ [in] & 0.122 & \underline{\hspace{1.5cm}} \\
-Location of max deflection [in from A] & 4.298 & \underline{\hspace{1.5cm}} \\
+Max deflection $|v|_{max}$ [in] & 0.122 & N/M \\
+Location of max deflection [in from A] & 4.298 & $\approx 4.3$ \\
 Min FoS (theory)              & 1.674 & N/A \\
-Pass/Fail                     & Pass (theory) & \underline{\hspace{1.5cm}} \\
+Pass/Fail                     & Pass (theory) & Pass \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \paragraph{Observations.}
-\textit{[FILL IN: outcome (pass/fail), visible failure location if any, qualitative deflection behavior.]}
+Under the governing LC2 side-load condition, Beam~A again showed only minimal
+visible deflection, estimated qualitatively as approximately 1--2$^\circ$.
+The beam remained intact throughout the test, with no visible failure location,
+cracking, or layer separation.  The experimental outcome was recorded as a
+pass.  Since a direct displacement reading was not recorded, the measured
+maximum deflection is listed as N/M.
 
 \subsection{Trial 4: Beam~B (Backup, 19.5~g, FoS 1.649)}
 
 Beam~B was the fourth-ranked candidate from the optimization study (hence
 ``Trial~4'').  It is the heavier beam with opposite asymmetric taper compared
 to Beam~A, and served as the backup specimen.
-Both load cases were applied after Beam~A testing was complete.
+Beam~B was not physically tested; its predicted results are included as a
+backup-design comparison only.
 
 \subsubsection{LC1 -- Upright Loading (5~lbf at midspan)}
 
@@ -1212,8 +1223,8 @@ Both load cases were applied after Beam~A testing was complete.
 Beam~B placed upright.
 Support~A end (\textbf{tall}, $h = 0.852\ \mathrm{in}$) at left pin;
 Support~B end (\textbf{short}, $h = 0.499\ \mathrm{in}$) at right pin.
-Actual applied load measured on scale: $P_1 = 4.95\ \mathrm{lbf}$
-(nominal 5.0~lbf).
+Planned applied load: $P_1 = 4.95\ \mathrm{lbf}$ based on the Beam~A test
+load setup (nominal 5.0~lbf).
 Load point: 4.0~in from Support~A.
 
 \begin{table}[H]
@@ -1225,21 +1236,24 @@ Deflection values are in inches; location measured from Support~A along the span
 \toprule
 Quantity & Theory & Measured \\
 \midrule
-Weight of beam [g]            & 19.5  & \underline{\hspace{1.5cm}} \\
-Max deflection $|v|_{max}$ [in] & 0.047 & \underline{\hspace{1.5cm}} \\
-Location of max deflection [in from A] & \underline{\hspace{1cm}} & \underline{\hspace{1.5cm}} \\
+Weight of beam [g]            & 19.5  & N/M \\
+Max deflection $|v|_{max}$ [in] & 0.047 & Not tested \\
+Location of max deflection [in from A] & $\approx 4.0$ & Not tested \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \paragraph{Observations.}
-\textit{[FILL IN.]}
+Beam~B was retained as a backup specimen but was not experimentally loaded.
+Therefore no measured deflection, failure observation, or pass/fail result was
+recorded for this load case.
 
 \subsubsection{LC2 -- Side-Rotated Loading (8~lbf at 5~in from A)}
 
 \paragraph{Conditions.}
 Beam~B rotated 90$^\circ$.  \textbf{Same end-to-support assignment as LC1.}
-Actual applied load: $P_2 = 7.95\ \mathrm{lbf}$ (nominal 8.0~lbf).
+Planned applied load: $P_2 = 7.95\ \mathrm{lbf}$ based on the Beam~A test
+load setup (nominal 8.0~lbf).
 Load point: 5.0~in from Support~A.
 
 \begin{table}[H]
@@ -1251,16 +1265,17 @@ Deflection values are in inches; location measured from Support~A along the span
 \toprule
 Quantity & Theory & Measured \\
 \midrule
-Max deflection $|v|_{max}$ [in] & 0.141 & \underline{\hspace{1.5cm}} \\
-Location of max deflection [in from A] & \underline{\hspace{1cm}} & \underline{\hspace{1.5cm}} \\
+Max deflection $|v|_{max}$ [in] & 0.141 & Not tested \\
+Location of max deflection [in from A] & $\approx 4.3$ & Not tested \\
 Min FoS (theory)              & 1.649 & N/A \\
-Pass/Fail                     & Pass (theory) & \underline{\hspace{1.5cm}} \\
+Pass/Fail                     & Pass (theory) & Not tested \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \paragraph{Observations.}
-\textit{[FILL IN: outcome (pass/fail).]}
+Beam~B was not experimentally loaded in LC2.  The table therefore reports only
+the theoretical prediction and identifies the measured outcome as not tested.
 
 
 %% ═══════════════════════════════════════════════════════════════════════════════
@@ -1284,17 +1299,23 @@ lower than predicted.}
 \toprule
 Beam (Trial) & Load Case & Theory $|v|_{max}$ [in] & Measured $|v|_{max}$ [in] & Percent Error \\
 \midrule
-Beam~A (Trial~2) & LC1 (upright, 5~lbf)    & 0.054 & \underline{\hspace{1.5cm}} & \underline{\hspace{1cm}} \\
-Beam~A (Trial~2) & LC2 (side, 8~lbf)       & 0.122 & \underline{\hspace{1.5cm}} & \underline{\hspace{1cm}} \\
-Beam~B (Trial~4) & LC1 (upright, 5~lbf)    & 0.047 & \underline{\hspace{1.5cm}} & \underline{\hspace{1cm}} \\
-Beam~B (Trial~4) & LC2 (side, 8~lbf)       & 0.141 & \underline{\hspace{1.5cm}} & \underline{\hspace{1cm}} \\
+Beam~A (Trial~2) & LC1 (upright, 5~lbf)    & 0.054 & N/M & N/A \\
+Beam~A (Trial~2) & LC2 (side, 8~lbf)       & 0.122 & N/M & N/A \\
+Beam~B (Trial~4) & LC1 (upright, 5~lbf)    & 0.047 & Not tested & N/A \\
+Beam~B (Trial~4) & LC2 (side, 8~lbf)       & 0.141 & Not tested & N/A \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \subsection{Sources of Error}
 
-\textit{[FILL IN after testing.  The following are anticipated sources:]}
+The physical test confirmed that Beam~A survived both required loading
+conditions with only minimal visible deflection.  A direct displacement reading
+was not recorded, so percent error could not be computed from the experimental
+data.  The qualitative observation that the beam appeared stiffer than expected
+is consistent with the fabrication mismatch: the analysis assumed reduced
+effective stiffness for partial infill, while the actual beams were printed at
+100\% infill.
 
 \paragraph{Theoretical sources of error.}
 \begin{itemize}[noitemsep]
@@ -1345,7 +1366,14 @@ Beam~B (Trial~4) & LC2 (side, 8~lbf)       & 0.141 & \underline{\hspace{1.5cm}} 
 \label{sec:contributions}
 %% ═══════════════════════════════════════════════════════════════════════════════
 
-\textit{[FILL IN: describe each team member's role and responsibilities.]}
+The project team consisted of Chauncey Patrick, Brennan Stanley, and
+Nikhil Veeramachaneni.  All three team members contributed to the beam
+design process, fabrication planning, physical test setup, experimental
+documentation, and final report preparation.  Specific responsibilities
+included developing and checking the analysis workflow, reviewing candidate
+beam geometries, preparing the selected designs for printing, recording test
+loads and deflections, and assembling the final written and visual
+deliverables.
 
 
 %% ═══════════════════════════════════════════════════════════════════════════════
@@ -1380,8 +1408,15 @@ is taller and narrower, driven by LC2 placing greater shear demand at Support~B.
 The optimizer consistently chose closed-tube geometries with no web openings,
 trading some material efficiency for robust printability.
 
-\textit{[FILL IN: final experimental outcome, observed deflections vs.\ theory,
-and which beam was submitted as the report candidate after testing.]}
+Beam~A was selected as the submitted report candidate after testing.  It passed
+both LC1 and the governing LC2 condition without visible cracking, layer
+separation, or permanent deformation.  The observed deflection was minimal by
+visual inspection, approximately 1--2$^\circ$ of visible rotation or bending,
+but no direct displacement reading was recorded.  Therefore the experimental
+tables report the measured displacement as N/M rather than computing a percent
+error.  This qualitative result is still consistent with the analysis because
+the physical beams were printed at 100\% infill, making them stiffer than the
+40\%-infill effective stiffness assumption used in the theoretical model.
 
 
 %% ═══════════════════════════════════════════════════════════════════════════════
