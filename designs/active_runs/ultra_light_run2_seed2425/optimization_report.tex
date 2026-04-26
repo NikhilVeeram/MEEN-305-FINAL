@@ -1,0 +1,162 @@
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage{float}
+\title{Beam Optimization Report}
+\date{}
+\begin{document}
+\maketitle
+
+\section*{Search Summary}
+\begin{itemize}
+\item Search method: stratified global sampling with elite local refinement
+\item Total evaluated designs: 1880
+\item Feasible designs found: 632
+\item Minimum required factor of safety: 1.500
+\item Objective shaping: penalize excess FoS margin and underutilized stress envelope so the design approaches the 1.5 target more closely
+\item Maximum allowed deflection: not enforced
+\item Random seed: 2425
+\end{itemize}
+
+\section*{Best Design}
+\begin{itemize}
+\item Weight: 0.01957 lbf
+\item Minimum factor of safety: 1.707
+\item Excess FoS above target: 0.207
+\item Governing minimum-FoS load case: Load Case 2 at $x=5.500$ in
+\item Maximum deflection: 0.08948 in
+\item Uniformity score toward FoS target (0 is best): 0.324115
+\item Symmetry score (0 is best): 0.000001
+\item Smoothness score (0 is best): 0.031899
+\item Durability score (0 is best): 0.000000
+\item Effective modulus: 297500.0 psi
+\item Effective allowable stress: 2380.0 psi
+\end{itemize}
+
+\subsection*{Geometry Variables}
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Variable & Value \\
+\midrule
+Support span $L$ [in] & 8.000 \\
+Total beam length $L_{total}$ [in] & 9.000 \\
+$x_A$ [in] & 0.500 \\
+$x_B$ [in] & 8.500 \\
+$b_L$ [in] & 0.285 \\
+$b_M$ [in] & 0.551 \\
+$b_R$ [in] & 0.285 \\
+$h_L$ [in] & 0.471 \\
+$h_M$ [in] & 0.778 \\
+$h_R$ [in] & 0.471 \\
+$t$ [in] & 0.040 \\
+$r_L$ [-] & 0.629 \\
+$r_M$ [-] & 0.685 \\
+$r_R$ [-] & 0.629 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Beam Structure and Parameters}
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{beam_parameter_map.png}
+\caption{Variable map used in the optimization run.}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{best_design/outer_dimension_views.png}
+\caption{Outer dimension views for the best design.}
+\end{figure}
+
+\subsection*{Best-Design Load-Case Metrics}
+\begin{center}
+\begin{tabular}{lllllllll}
+\toprule
+Load Case & Orientation & Load [lbf] & From A [in] & Global $x$ [in] & Min FoS & FoS x [in] & Max Defl. [in] & Max $\sigma_{vm}$ [psi] \\
+\midrule
+Load Case 1 & upright & 5.000 & 4.000 & 4.500 & 4.169 & 4.500 & 0.03370 & 570.9 \\
+Load Case 2 & side & 8.000 & 5.000 & 5.500 & 1.707 & 5.500 & 0.08948 & 1394.6 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{General Equations}
+Profiles below are parameterized over the total beam length $0 \le x \le 9.000$ in, while $a$ remains the load location measured from support A.
+\subsection*{Geometry}
+\[
+b(x)=\begin{cases}0.2851 + (0.0591)x, & 0 \le x \le 4.5000\\0.5509 + (-0.0591)(x-4.5000), & 4.5000 < x \le 9.0000\end{cases}
+\]
+\[
+h(x)=\begin{cases}0.4714 + (0.0681)x, & 0 \le x \le 4.5000\\0.7778 + (-0.0681)(x-4.5000), & 4.5000 < x \le 9.0000\end{cases}
+\]
+\[
+r(x)=\begin{cases}0.6290 + (0.0123)x, & 0 \le x \le 4.5000\\0.6845 + (-0.0123)(x-4.5000), & 4.5000 < x \le 9.0000\end{cases}
+\]
+\[
+A(x)=2b(x)t+[1-r(x)]2t[h(x)-2t]
+\]
+\[
+I_{upright}(x)=\frac{b(x)h(x)^3-[b(x)-2t][h(x)-2t]^3}{12}-2\frac{t[r(x)(h(x)-2t)]^3}{12}
+\]
+\[
+I_{side}(x)=\frac{h(x)b(x)^3-[h(x)-2t][b(x)-2t]^3}{12}-2\frac{t[r(x)(b(x)-2t)]^3}{12}
+\]
+\[
+S(x)=\frac{I(x)}{c(x)}
+\]
+
+\subsection*{Statics, Stress, and Deflection}
+\[
+R_A=\frac{P(L-a)}{L}, \qquad R_B=\frac{Pa}{L}
+\]
+\[
+\sigma_b(x)=\frac{|M(x)|}{S(x)}
+\]
+\[
+\tau(x)=\frac{|V(x)|}{A_{shear}(x)}, \qquad A_{shear}(x)=[1-r(x)]2t\,h_{clear}(x)
+\]
+\[
+\sigma_{vm}(x)=\sqrt{\sigma_b(x)^2+3\tau(x)^2}
+\]
+\[
+FoS(x)=\frac{\sigma_{allow,eff}}{\sigma_{vm}(x)}
+\]
+\[
+E_{eff}I(x)v''(x)=M(x)
+\]
+\[
+W=\rho\int_0^{L_{total}} A(x)\,dx
+\]
+
+\section*{Automatic Equation Substitution}
+\subsection*{Effective Material Properties}
+\[E_{eff} = E \cdot k_{orientation} \cdot k_{infill} = 500000.0 \cdot 0.700 \cdot 0.850 = 297500.0\ \mathrm{psi}\]
+\[\sigma_{allow,eff} = \sigma_{allow} \cdot k_{orientation} \cdot k_{infill} = 4000.0 \cdot 0.700 \cdot 0.850 = 2380.0\ \mathrm{psi}\]
+\[x_A = 0.500\ \mathrm{in}, \qquad x_B = 8.500\ \mathrm{in}\]
+\[W = \rho \int_0^{L_{total}} A(x)\,dx = 0.01957\ \mathrm{lbf}\]
+Global governing factor of safety is the minimum value over all beam stations and over both load cases.
+\subsection*{Load Case 1}
+Active bending orientation: upright (upright section properties).
+\[a = 4.000\ \mathrm{in} \text{ from support A}, \qquad x_{load} = 4.500\ \mathrm{in}\]
+\[R_A = \frac{P(L-a)}{L} = \frac{5.000(8.000-4.000)}{8.000} = 2.500\ \mathrm{lbf}\]
+\[R_B = \frac{Pa}{L} = \frac{5.000(4.000)}{8.000} = 2.500\ \mathrm{lbf}\]
+\[FoS_{min} = \frac{\sigma_{allow,eff}}{\sigma_{vm,max}} = \frac{2380.0}{570.9} = 4.169\]
+\[x_{FoS,min} = 4.500\ \mathrm{in}\]
+\[\max |v(x)| = 0.03370\ \mathrm{in}, \qquad \max |\theta(x)| = 0.014466\ \mathrm{rad}\]
+\subsection*{Load Case 2}
+Active bending orientation: side (side-rotated section properties).
+\[a = 5.000\ \mathrm{in} \text{ from support A}, \qquad x_{load} = 5.500\ \mathrm{in}\]
+\[R_A = \frac{P(L-a)}{L} = \frac{8.000(8.000-5.000)}{8.000} = 3.000\ \mathrm{lbf}\]
+\[R_B = \frac{Pa}{L} = \frac{8.000(5.000)}{8.000} = 5.000\ \mathrm{lbf}\]
+\[FoS_{min} = \frac{\sigma_{allow,eff}}{\sigma_{vm,max}} = \frac{2380.0}{1394.6} = 1.707\]
+\[x_{FoS,min} = 5.500\ \mathrm{in}\]
+\[\max |v(x)| = 0.08948\ \mathrm{in}, \qquad \max |\theta(x)| = 0.044272\ \mathrm{rad}\]
+
+\section*{Automatic Trail of Tried Designs}
+The optimizer writes every evaluated candidate to \texttt{design\_study.csv}, the selected best design to \texttt{best\_design.json}, and the best-design plots to the \texttt{best\_design/} folder.
+
+\end{document}
