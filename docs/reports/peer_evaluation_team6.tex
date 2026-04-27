@@ -1,62 +1,46 @@
-\documentclass[11pt]{article}
-\usepackage[margin=0.55in,landscape]{geometry}
-\usepackage{array}
-\usepackage{booktabs}
-\usepackage{tabularx}
-\usepackage{ragged2e}
-\usepackage{enumitem}
-
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{6pt}
-\renewcommand{\arraystretch}{1.35}
-
-\newcolumntype{Y}{>{\Centering\arraybackslash}X}
-\newcolumntype{L}{>{\RaggedRight\arraybackslash}p{1.85in}}
+\documentclass[letterpaper,11pt]{article}
+\usepackage[margin=0in]{geometry}
+\usepackage{graphicx}
+\usepackage{tikz}
+\pagestyle{empty}
 
 \begin{document}
+\noindent\raisebox{-\paperheight}[0pt][0pt]{%
+  \includegraphics[page=5,width=\paperwidth,height=\paperheight]{../references/project_reference_materials/Project - 305 - S26 (1).pdf}%
+}
+\begin{tikzpicture}[remember picture,overlay,x=1in,y=1in]
 
-\begin{center}
-{\Large \textbf{Student Self and Peer Evaluation for MEEN 305 Project}}\\[0.35em]
-{\large \textbf{TEAM: 6}}
-\end{center}
+  % Top identification fields.
+  \node[anchor=west] at ([xshift=1.55in,yshift=-0.62in]current page.north west) {Nikhil Veeramachaneni};
+  \node[anchor=west] at ([xshift=7.40in,yshift=-0.62in]current page.north west) {6};
 
-This form will be used to assess the performance of all the members of your
-group. Responses are confidential and only known by the graders and yourself.
+  % TEAM field.
+  \fill[white] ([xshift=1.54in,yshift=-2.81in]current page.north west) rectangle
+    ([xshift=1.78in,yshift=-2.54in]current page.north west);
+  \node[anchor=west] at ([xshift=1.56in,yshift=-2.65in]current page.north west) {6};
 
-\textbf{Scale:} 5 - Excellent \quad 4 - Good \quad 3 - Fair \quad 2 - Poor
-\quad 1 - Did Nothing
+  % Table row coordinates.
+  \node[anchor=west,font=\fontsize{6}{7}\selectfont] at ([xshift=1.20in,yshift=-4.33in]current page.north west) {Chauncey Patrick};
+  \node[anchor=west,font=\fontsize{6}{7}\selectfont] at ([xshift=1.20in,yshift=-4.52in]current page.north west) {Brennan Stanley};
+  \node[anchor=west,font=\fontsize{6}{7}\selectfont] at ([xshift=1.20in,yshift=-4.70in]current page.north west) {Nikhil Veeramachaneni};
 
-\small
-\begin{tabularx}{\textwidth}{@{}c L Y Y Y Y Y Y c@{}}
-\toprule
- & \textbf{Team Member Name}
- & \textbf{Assisted with analysis}
- & \textbf{Assisted with fabrication}
- & \textbf{Assisted with testing}
- & \textbf{Assisted with writing the report}
- & \textbf{Completed assigned tasks}
- & \textbf{Actively responded to communications}
- & \textbf{Total} \\
-\midrule
-1. & Chauncey Patrick       & 5 & 5 & 5 & 5 & 5 & 5 & 30 \\
-2. & Brennan Stanley        & 5 & 5 & 5 & 5 & 5 & 5 & 30 \\
-3. & Nikhil Veeramachaneni  & 5 & 5 & 5 & 5 & 5 & 5 & 30 \\
-4. &                         &   &   &   &   &   &   &    \\
-5. &                         &   &   &   &   &   &   &    \\
-6. &                         &   &   &   &   &   &   &    \\
-\bottomrule
-\end{tabularx}
+  % Scores: analysis, fabrication, testing, writing, tasks, communication, total.
+  \foreach \y in {-4.33,-4.52,-4.70} {
+    \node[font=\scriptsize] at ([xshift=2.44in,yshift=\y in]current page.north west) {5};
+    \node[font=\scriptsize] at ([xshift=3.18in,yshift=\y in]current page.north west) {5};
+    \node[font=\scriptsize] at ([xshift=3.90in,yshift=\y in]current page.north west) {5};
+    \node[font=\scriptsize] at ([xshift=4.62in,yshift=\y in]current page.north west) {5};
+    \node[font=\scriptsize] at ([xshift=5.52in,yshift=\y in]current page.north west) {5};
+    \node[font=\scriptsize] at ([xshift=6.53in,yshift=\y in]current page.north west) {5};
+    \node[font=\scriptsize] at ([xshift=7.25in,yshift=\y in]current page.north west) {30};
+  }
 
-\normalsize
-\vspace{1em}
-\textbf{Additional comments:}
-
-\begin{enumerate}[leftmargin=1.5em, itemsep=0.15em]
-  \item Chauncey Patrick contributed to fabrication planning, testing support, and final documentation.
-  \item Brennan Stanley helped with beam fabrication, experimental setup, and report review.
-  \item Nikhil Veeramachaneni contributed to analysis, design iteration, testing, and report assembly.
-  \item All members communicated reliably and completed assigned work on time.
-  \item No concerns; each teammate earned full credit for their project contributions.
-\end{enumerate}
-
+  % Additional comments, five lines maximum.
+  \node[anchor=west,font=\small] at ([xshift=1.00in,yshift=-6.10in]current page.north west) {Chauncey Patrick contributed to fabrication planning, testing support, and final documentation.};
+  \node[anchor=west,font=\small] at ([xshift=1.00in,yshift=-6.32in]current page.north west) {Brennan Stanley helped with beam fabrication, experimental setup, and report review.};
+  \node[anchor=west,font=\small] at ([xshift=1.00in,yshift=-6.54in]current page.north west) {Nikhil Veeramachaneni contributed to analysis, design iteration, testing, and report assembly.};
+  \node[anchor=west,font=\small] at ([xshift=1.00in,yshift=-6.76in]current page.north west) {All members communicated reliably and completed assigned work on time.};
+  \node[anchor=west,font=\small] at ([xshift=1.00in,yshift=-6.98in]current page.north west) {No concerns; each teammate earned full credit for their project contributions.};
+\end{tikzpicture}
+\null
 \end{document}
